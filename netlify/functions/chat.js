@@ -7,7 +7,7 @@ exports.handler = async function (event) {
     JSON.parse(event.body || "{}");
 
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.MODEL || "google/gemini-2.5-flash";
+  const MODEL = process.env.MODEL || "google/gemini-3.5-flash";
 
   if (!OPENROUTER_API_KEY) {
     return {
