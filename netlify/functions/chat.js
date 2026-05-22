@@ -3,16 +3,22 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const { messages = [], userName = "User", gfName = "Sia", greet = false } =
-    JSON.parse(event.body || "{}");
+  const {
+    messages = [],
+    userName = "User",
+    gfName = "Sia",
+    greet = false,
+    apiKey = ""          // ← user-supplied key from the browser
+  } = JSON.parse(event.body || "{}");
 
-  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.MODEL || "google/gemini-3.5-flash";
+  // Prefer user-supplied key; fall back to env var for backward compat
+  const OPENROUTER_API_KEY = apiKey || process.env.OPENROUTER_API_KEY;
+  const MODEL = process.env.MODEL || "google/gemini-flash-1.5";
 
   if (!OPENROUTER_API_KEY) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ reply: "API key not configured 💔" }),
+      statusCode: 400,
+      body: JSON.stringify({ reply: "API key not provided 💔 Please go back and enter your OpenRouter key." }),
     };
   }
 
@@ -47,7 +53,6 @@ Call the user by the name "${userName}".
 
 Respond naturally as ${gfName}. Be warm, expressive, and genuinely present in every message.`;
 
-  // Build message list
   const apiMessages = [];
 
   if (greet) {
@@ -90,7 +95,8 @@ Respond naturally as ${gfName}. Be warm, expressive, and genuinely present in ev
       };
     }
 
-    const reply = data.choices?.[0]?.message?.content?.trim() ||
+    const reply =
+      data.choices?.[0]?.message?.content?.trim() ||
       `Hey ${userName}! Ki holo? 💖`;
 
     return {
@@ -106,4 +112,3 @@ Respond naturally as ${gfName}. Be warm, expressive, and genuinely present in ev
     };
   }
 };
-
