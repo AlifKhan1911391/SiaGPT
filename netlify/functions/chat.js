@@ -13,7 +13,7 @@ exports.handler = async function (event) {
 
   // Prefer user-supplied key; fall back to env var for backward compat
   const OPENROUTER_API_KEY = apiKey || process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.MODEL || "google/gemini-flash-3.5";
+  const MODEL = process.env.MODEL || "google/gemini-2.0-flash-001";
 
   if (!OPENROUTER_API_KEY) {
     return {
