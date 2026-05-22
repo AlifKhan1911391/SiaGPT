@@ -73,7 +73,7 @@ Respond naturally as ${gfName}. Be warm, expressive, and genuinely present in ev
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: "system", content: systemPrompt }, ...apiMessages],
-        max_tokens: 512,
+        max_tokens: 1024,
         temperature: 0.6,
         top_p: 0.85,
         top_k: 30,
