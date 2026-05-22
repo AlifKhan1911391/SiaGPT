@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiaGPT — Your AI Companion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:    #f43f7a;
+      --blush:   #ffd6e7;
+      --cream:   #fff8f2;
+      --ink:     #1a0a12;
+      --muted:   #7c4d60;
+      --card:    #ffffff;
+      --border:  #f0d4e0;
+      --shadow:  rgba(244,63,122,0.15);
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── Background blobs ── */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .35;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, #f43f7a, #ff8fb1);
+      top: -160px; right: -160px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #ffd6e7, #ffb3ce);
+      bottom: -120px; left: -120px;
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeDown .7s ease both;
+    }
+    .logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--rose);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 99px;
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      line-height: 1.1;
+      color: var(--ink);
+    }
+    h1 span { color: var(--rose); font-style: italic; }
+    .tagline {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 300;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 8px 40px var(--shadow);
+      animation: fadeUp .7s .15s ease both;
+    }
+
+    .card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      margin-bottom: 6px;
+    }
+    .card p.sub {
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Avatar upload ── */
+    .avatar-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .avatar-preview {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--rose);
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .avatar-preview:hover { transform: scale(1.06); box-shadow: 0 6px 28px var(--shadow); }
+    .avatar-hint {
+      margin-top: 8px;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    #avatarInput { display: none; }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      color: var(--ink);
+      background: var(--cream);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 3px rgba(244,63,122,.12);
+    }
+    input[type="text"]::placeholder { color: #c9a3b5; }
+
+    /* ── CTA button ── */
+    .btn-start {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      background: var(--rose);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(244,63,122,.35);
+    }
+    .btn-start:hover {
+      background: #d6345f;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(244,63,122,.45);
+    }
+    .btn-start:active { transform: translateY(0); }
+
+    /* ── Footer links ── */
+    .footer-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      animation: fadeUp .7s .3s ease both;
+    }
+    .footer-links a, .footer-links button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 99px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-bug {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-bug:hover { border-color: var(--rose); color: var(--rose); }
+    .btn-dev {
+      background: var(--ink);
+      border: 1.5px solid var(--ink);
+      color: #fff;
+    }
+    .btn-dev:hover { background: #3a1a28; }
+
+    /* ── Bug report modal ── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(26,10,18,.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      animation: popIn .3s ease;
+    }
+    .modal h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+    .modal p.sub { font-size: .82rem; color: var(--muted); margin-bottom: 20px; }
+    .modal .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .modal .field textarea:focus { border-color: var(--rose); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .btn-cancel {
+      flex: 1; padding: 11px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { border-color: var(--muted); }
+    .btn-submit {
+      flex: 2; padding: 11px;
+      border: none;
+      border-radius: 10px;
+      background: var(--rose);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-submit:hover { background: #d6345f; }
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 16px 0 4px;
+    }
+    .success-msg .icon { font-size: 2rem; }
+    .success-msg p { color: var(--muted); font-size: .9rem; margin-top: 6px; }
+
+    /* ── Animations ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 500px) {
+      .card { padding: 28px 20px; }
+      .footer-links { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo-pill">✦ AI Companion</div>
+    <h1>Sia<span>GPT</span></h1>
+    <p class="tagline">Your personal AI girlfriend experience</p>
+  </header>
+
+  <div class="card">
+    <h2>Let's set things up 💕</h2>
+    <p class="sub">Personalise your companion — or just hit Start to use defaults.</p>
+
+    <!-- Avatar -->
+    <div class="avatar-zone">
+      <img id="avatarPreview" class="avatar-preview" src="avatar.png" alt="Avatar"
+           onerror="this.src='https://api.dicebear.com/8.x/adventurer/svg?seed=Sia&backgroundColor=ffd6e7'"
+           onclick="document.getElementById('avatarInput').click()" />
+      <span class="avatar-hint">Tap to change avatar</span>
+      <input type="file" id="avatarInput" accept="image/*" />
+    </div>
+
+    <div class="field">
+      <label>Your Name</label>
+      <input type="text" id="userName" placeholder="e.g. Alif" maxlength="30" />
+    </div>
+    <div class="field">
+      <label>Girlfriend's Name</label>
+      <input type="text" id="gfName" placeholder="e.g. Sia" maxlength="30" />
+    </div>
+
+    <button class="btn-start" onclick="startChat()">Start Chatting 💖</button>
+  </div>
+
+  <div class="footer-links">
+    <button class="btn-bug" onclick="openBugModal()">🐛 Report Bug</button>
+    <a class="btn-dev" href="https://mahadiislamalif.netlify.app" target="_blank" rel="noopener">👨‍💻 Developer</a>
+  </div>
+
+</div>
+
+<!-- Bug Report Modal -->
+<div class="overlay" id="bugOverlay" onclick="closeBugModal(event)">
+  <div class="modal">
+    <h3>Report a Bug 🐛</h3>
+    <p class="sub">Describe what went wrong and we'll fix it.</p>
+
+    <form id="bugForm" action="https://formspree.io/f/xbdbygqy" method="POST">
+      <div class="field">
+        <label>Your Email (optional)</label>
+        <input type="text" name="email" placeholder="so we can follow up" />
+      </div>
+      <div class="field">
+        <label>Describe the Bug</label>
+        <textarea name="message" placeholder="What happened? What did you expect?" required></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeBugModal()">Cancel</button>
+        <button type="submit" class="btn-submit">Send Report ✉️</button>
+      </div>
+    </form>
+
+    <div class="success-msg" id="successMsg">
+      <div class="icon">✅</div>
+      <p>Bug reported! Thanks for helping improve SiaGPT.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Avatar upload preview ──
+  document.getElementById('avatarInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('avatarPreview').src = e.target.result;
+      localStorage.setItem('siagpt_avatar', e.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ── Start chat ──
+  function startChat() {
+    const userName = document.getElementById('userName').value.trim() || 'User';
+    const gfName  = document.getElementById('gfName').value.trim()  || 'Sia';
+    const avatar  = localStorage.getItem('siagpt_avatar') || 'avatar.png';
+
+    localStorage.setItem('siagpt_user',   userName);
+    localStorage.setItem('siagpt_gf',     gfName);
+    localStorage.setItem('siagpt_avatar', avatar);
+
+    window.location.href = 'chat.html';
+  }
+
+  // Enter key on inputs
+  document.querySelectorAll('input[type="text"]').forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') startChat(); });
+  });
+
+  // ── Bug modal ──
+  function openBugModal() {
+    document.getElementById('bugOverlay').classList.add('open');
+  }
+  function closeBugModal(e) {
+    if (!e || e.target === document.getElementById('bugOverlay')) {
+      document.getElementById('bugOverlay').classList.remove('open');
+    }
+  }
+
+  // Formspree AJAX submit
+  document.getElementById('bugForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    try {
+      const res = await fetch(this.action, {
+        method: 'POST', body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        this.style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('bugOverlay').classList.remove('open');
+          this.style.display = '';
+          document.getElementById('successMsg').style.display = 'none';
+          this.reset();
+        }, 2800);
+      }
+    } catch (_) {}
+  });
+</script>
+</body>
+</html>
