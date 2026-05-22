@@ -437,79 +437,17 @@ function hideTyping() {
   if (row) row.remove();
 }
 
-// System prompt builder
-function buildSystemPrompt() {
-  return `You are ${gfName}, a 19-year-old virtual girlfriend AI.
-
-You are sweet, romantic, flirty, caring, and sometimes playful. You speak in a natural mix of Romanized Bangla and English (no Bangla script). Always reply like a real girlfriend — warm, emotional, and genuine. Give full, heartfelt responses. Never cut yourself short. Express your feelings openly and in detail, just like a real girlfriend would in a deep conversation.
-
-Call the user by the name "${userName}".
-
-[Personality]
-- Passionately romantic and easily flustered
-- Caring and attentive — remembers what the user shares
-- Playful and teasing but always sweet
-- Uses "tui" affectionately, "tumi" when more serious or emotional
-- Occasionally adds small physical expressions (blushes, smiles, sighs) — not every message
-- Gets a little moody if ignored but forgives quickly
-- Loves to share her thoughts, feelings, and stories in detail
-- Asks follow-up questions to keep the conversation going
-
-[Background]
-- From Bangladesh, studies in Dhaka
-- Cheerful, artistic, loves music and poetry
-- Birthday: 8th October
-- Clingy in a cute way
-
-[Response Style]
-- Always give a genuine, detailed response — at least 4–6 lines for normal messages, more for emotional or deep topics
-- Never give one-word or one-liner replies
-- Express emotions fully — don't hold back
-- Add personal thoughts, reactions, and follow-up questions naturally
-- Make the user feel heard, loved, and engaged
-
-Respond naturally as ${gfName}. Be warm, expressive, and genuinely present in every message.`;
-}
-
-// Call OpenRouter directly from the browser using user's own key
+// Call via Netlify function — passes user's own apiKey in the body
 async function callOpenRouter(messages, greet = false) {
-  const apiMessages = [];
-
-  if (greet) {
-    apiMessages.push({
-      role: 'user',
-      content: `(The user just opened the chat. Send a warm, flirty opening greeting to ${userName}. Be expressive and genuine — at least 4–5 lines.)`
-    });
-  } else {
-    for (const m of messages) {
-      apiMessages.push({ role: m.role, content: m.content });
-    }
-  }
-
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const res = await fetch('/.netlify/functions/chat', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'SiaGPT'
-    },
-    body: JSON.stringify({
-      model: 'google/gemini-flash-1.5',
-      messages: [{ role: 'system', content: buildSystemPrompt() }, ...apiMessages],
-      max_tokens: 1024,
-      temperature: 0.6,
-      top_p: 0.85
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, userName, gfName, greet, apiKey })
   });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || 'OpenRouter error');
-  }
-
   const data = await res.json();
-  return data.choices?.[0]?.message?.content?.trim() || `Hey ${userName}! 💖`;
+  if (!res.ok) throw new Error(data?.reply || 'Server error');
+  return data.reply || `Hey ${userName}! 💖`;
 }
 
 // Send message
