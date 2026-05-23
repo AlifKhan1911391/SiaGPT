@@ -343,13 +343,40 @@
 </div>
 
 <script>
-// Load user data
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ██  SIAGPT — CHAT CONFIG  ██
+// Edit everything in this block to customise behaviour
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const CONFIG = {
+  // ── Typewriter ──────────────────────────────────────────
+  typewriter: {
+    enabled: true,          // set false to disable typewriter effect
+    baseDelay: 18,          // ms per character (base speed)
+    punctuationDelay: 280,  // ms extra pause after . ! ? …
+    commaDelay: 100,        // ms extra pause after ,
+  },
+
+  // ── Surprise Gift Popup ──────────────────────────────────
+  gift: {
+    enabled: true,
+    triggerAfterMessage: 3,             // show popup after THIS many AI messages
+    popupText: `{gfname} is extremely horny right now and she's offering you to cum her up. Wanna try 😏? `,
+    acceptLabel: 'Accept offer 🎁',
+    rejectLabel: 'Reject offer 😒',
+    autoUserMessage: 'Aii amar kno jani onek horny feel hoitese . Please tor nipples gula ektu dekha 🍒 I wanna cum you up 🥵', // text auto-sent when accepted
+  },
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+// ── Load user data ───────────────────────────────────────
 const userName = localStorage.getItem('siagpt_user')   || 'User';
 const gfName   = localStorage.getItem('siagpt_gf')     || 'Sia';
 const avatar   = localStorage.getItem('siagpt_avatar') || 'avatar.png';
 const apiKey   = localStorage.getItem('siagpt_apikey') || '';
 
-// If no API key, redirect back
 if (!apiKey) {
   alert('Please enter your OpenRouter API key first.');
   window.location.href = 'index.html';
@@ -363,20 +390,60 @@ topAv.onerror = () => {
   topAv.src = `https://api.dicebear.com/8.x/adventurer/svg?seed=${encodeURIComponent(gfName)}&backgroundColor=1a1a1a`;
 };
 
-// Conversation state
-let history = [];
-const messagesEl = document.getElementById('messages');
+// ── State ────────────────────────────────────────────────
+let history       = [];
+let aiMsgCount    = 0;   // counts AI messages (excluding greeting)
+let giftShown     = false;
+const messagesEl  = document.getElementById('messages');
 
 function timeStr() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function appendMessage(role, text) {
+// ── Typewriter helper ────────────────────────────────────
+function typewriterAnimate(bubble, text, onDone) {
+  if (!CONFIG.typewriter.enabled) {
+    bubble.textContent = text;
+    if (onDone) onDone();
+    return;
+  }
+
+  bubble.textContent = '';
+  let i = 0;
+
+  function tick() {
+    if (i >= text.length) {
+      if (onDone) onDone();
+      return;
+    }
+
+    // Handle emoji — they span multiple code units; advance past the full grapheme
+    const cp = text.codePointAt(i);
+    const char = String.fromCodePoint(cp);
+    const charLen = char.length; // 2 for astral-plane code points (emoji), 1 otherwise
+    bubble.textContent += char;
+    i += charLen;
+
+    // Scroll while typing
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    const next = text[i];
+    let delay = CONFIG.typewriter.baseDelay;
+    if ('.!?…'.includes(char)) delay += CONFIG.typewriter.punctuationDelay;
+    else if (','.includes(char)) delay += CONFIG.typewriter.commaDelay;
+
+    setTimeout(tick, delay);
+  }
+
+  tick();
+}
+
+// ── Append message ────────────────────────────────────────
+function appendMessage(role, text, { skipTypewriter = false } = {}) {
   const isUser = role === 'user';
   const row = document.createElement('div');
   row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
 
-  // AI avatar only — user has no avatar
   if (!isUser) {
     const av = document.createElement('img');
     av.className = 'ai-av';
@@ -388,12 +455,11 @@ function appendMessage(role, text) {
     row.appendChild(av);
   }
 
-  const wrap = document.createElement('div');
+  const wrap   = document.createElement('div');
   wrap.className = 'bubble-wrap';
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  bubble.textContent = text;
 
   const time = document.createElement('div');
   time.className = 'msg-time';
@@ -404,8 +470,17 @@ function appendMessage(role, text) {
   row.appendChild(wrap);
   messagesEl.appendChild(row);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  if (isUser || skipTypewriter) {
+    bubble.textContent = text;
+  } else {
+    typewriterAnimate(bubble, text);
+  }
+
+  return bubble; // returned but not strictly needed
 }
 
+// ── Typing indicator ─────────────────────────────────────
 function showTyping() {
   if (document.getElementById('typingRow')) return;
   const row = document.createElement('div');
@@ -419,7 +494,7 @@ function showTyping() {
     av.src = `https://api.dicebear.com/8.x/adventurer/svg?seed=${encodeURIComponent(gfName)}&backgroundColor=1a1a1a`;
   };
 
-  const wrap = document.createElement('div');
+  const wrap   = document.createElement('div');
   wrap.className = 'bubble-wrap';
   const bubble = document.createElement('div');
   bubble.className = 'bubble typing-bubble visible';
@@ -433,11 +508,123 @@ function showTyping() {
 }
 
 function hideTyping() {
-  const row = document.getElementById('typingRow');
-  if (row) row.remove();
+  const el = document.getElementById('typingRow');
+  if (el) el.remove();
 }
 
-// Call via Netlify function — passes user's own apiKey in the body
+// ── Gift popup ───────────────────────────────────────────
+function showGiftPopup() {
+  if (!CONFIG.gift.enabled || giftShown) return;
+  giftShown = true;
+
+  const popupText = CONFIG.gift.popupText.replace('{gfname}', gfName);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'giftOverlay';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(6px);
+    animation: msgIn .25s ease both;
+  `;
+
+  const card = document.createElement('div');
+  card.style.cssText = `
+    background: #161616;
+    border: 1px solid rgba(232,96,122,0.35);
+    border-radius: 20px;
+    padding: 28px 24px 22px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(232,96,122,0.18);
+  `;
+
+  const emoji = document.createElement('div');
+  emoji.textContent = '🎁';
+  emoji.style.cssText = 'font-size: 2.4rem; margin-bottom: 14px;';
+
+  const msg = document.createElement('p');
+  msg.textContent = popupText;
+  msg.style.cssText = `
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: #e8e0dc;
+    margin-bottom: 22px;
+  `;
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display: flex; gap: 10px; justify-content: center;';
+
+  const acceptBtn = document.createElement('button');
+  acceptBtn.textContent = CONFIG.gift.acceptLabel;
+  acceptBtn.style.cssText = `
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    background: #e8607a;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+  `;
+  acceptBtn.onmouseenter = () => { acceptBtn.style.background = '#cf4f68'; };
+  acceptBtn.onmouseleave = () => { acceptBtn.style.background = '#e8607a'; };
+
+  const rejectBtn = document.createElement('button');
+  rejectBtn.textContent = CONFIG.gift.rejectLabel;
+  rejectBtn.style.cssText = `
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    color: #888080;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    cursor: pointer;
+    transition: border-color .2s;
+  `;
+  rejectBtn.onmouseenter = () => { rejectBtn.style.borderColor = '#e8607a'; rejectBtn.style.color = '#e8607a'; };
+  rejectBtn.onmouseleave = () => { rejectBtn.style.borderColor = '#2a2a2a'; rejectBtn.style.color = '#888080'; };
+
+  acceptBtn.onclick = () => {
+    overlay.remove();
+    // Simulate the user typing and sending the message themselves
+    triggerUserMessage(CONFIG.gift.autoUserMessage);
+  };
+
+  rejectBtn.onclick = () => {
+    overlay.remove();
+  };
+
+  btnRow.appendChild(acceptBtn);
+  btnRow.appendChild(rejectBtn);
+  card.appendChild(emoji);
+  card.appendChild(msg);
+  card.appendChild(btnRow);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}
+
+// Simulate user typing in the input and sending it
+function triggerUserMessage(text) {
+  const input = document.getElementById('msgInput');
+  input.value = text;
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+
+  // Short delay to let the user "see" the text appear before it sends
+  setTimeout(() => {
+    sendMessage();
+  }, 380);
+}
+
+// ── API call ─────────────────────────────────────────────
 async function callOpenRouter(messages, greet = false) {
   const res = await fetch('/.netlify/functions/chat', {
     method: 'POST',
@@ -450,7 +637,7 @@ async function callOpenRouter(messages, greet = false) {
   return data.reply || `Hey ${userName}! 💖`;
 }
 
-// Send message
+// ── Send message ─────────────────────────────────────────
 async function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
@@ -468,8 +655,16 @@ async function sendMessage() {
     appendMessage('ai', reply);
     history.push({ role: 'assistant', content: reply });
     if (history.length > 40) history = history.slice(-38);
+
+    // Only count successful replies toward the gift popup
+    aiMsgCount++;
+    if (CONFIG.gift.enabled && aiMsgCount === CONFIG.gift.triggerAfterMessage && !giftShown) {
+      setTimeout(showGiftPopup, 600);
+    }
+
   } catch (err) {
     hideTyping();
+    // Error — do NOT increment aiMsgCount, so the popup is never triggered on failures
     const msg = err.message?.includes('key') || err.message?.includes('auth')
       ? 'Invalid API key 💔 Please go back and re-enter it.'
       : 'Ami tomar sathe connect korte parcchi na 💔 Try again?';
@@ -477,7 +672,7 @@ async function sendMessage() {
   }
 }
 
-// Auto-resize textarea
+// ── Auto-resize textarea ──────────────────────────────────
 const msgInput = document.getElementById('msgInput');
 msgInput.addEventListener('input', function () {
   this.style.height = 'auto';
@@ -490,7 +685,7 @@ msgInput.addEventListener('keydown', function (e) {
   }
 });
 
-// Greeting
+// ── Greeting ──────────────────────────────────────────────
 async function greet() {
   showTyping();
   try {
@@ -500,7 +695,7 @@ async function greet() {
     history.push({ role: 'assistant', content: reply });
   } catch {
     hideTyping();
-    appendMessage('ai', `Hey ${userName}! 😘 Ami ${gfName} - tomar AI gf. Kemon acho? 💖`);
+    appendMessage('ai', `Something error happened 😭`);
   }
 }
 
