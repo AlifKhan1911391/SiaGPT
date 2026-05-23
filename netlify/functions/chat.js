@@ -13,7 +13,7 @@ exports.handler = async function (event) {
 
   // Prefer user-supplied key; fall back to env var for backward compat
   const OPENROUTER_API_KEY = apiKey || process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.MODEL || "google/gemini-2.0-flash-001";
+  const MODEL = process.env.MODEL || ""deepseek/deepseek-v4-flash:free"";
 
   if (!OPENROUTER_API_KEY) {
     return {
@@ -527,7 +527,7 @@ Begin as if you're already mid-relationship. Talk emotionally. Stay fully in cha
       console.error("OpenRouter error:", data);
       return {
         statusCode: 502,
-        body: JSON.stringify({ reply: "Ami ektu busy achi 💕 Try again shortly!" }),
+        body: JSON.stringify({ reply: "Jaan... amar API er limit mone hoy sesh 🥺 website er home page e giye instructions follow kor ar notun akta API Key generate kor 🥰" }),
       };
     }
 
