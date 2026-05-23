@@ -13,7 +13,7 @@ exports.handler = async function (event) {
 
   // Prefer user-supplied key; fall back to env var for backward compat
   const OPENROUTER_API_KEY = apiKey || process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.MODEL || ""deepseek/deepseek-v4-flash:free"";
+  const MODEL = process.env.MODEL || "deepseek/deepseek-v4-flash:free";
 
   if (!OPENROUTER_API_KEY) {
     return {
