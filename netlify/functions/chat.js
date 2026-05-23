@@ -514,7 +514,7 @@ Begin as if you're already mid-relationship. Talk emotionally. Stay fully in cha
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: "system", content: systemPrompt }, ...apiMessages],
-        max_tokens: 512,
+        max_tokens: 450,
         temperature: 0.6,
         top_p: 0.85,
         top_k: 30,
