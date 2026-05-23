@@ -121,7 +121,7 @@
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 18px;
+      padding: 20px 18px 48px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -401,9 +401,34 @@ function timeStr() {
 }
 
 // ── Typewriter helper ────────────────────────────────────
-function typewriterAnimate(bubble, text, onDone) {
+// ── Markdown parser (lightweight) ────────────────────────────────────
+function parseMarkdown(text) {
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+  html = html.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+  html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+  html = html.replace(/`([^`]+)`/g, '<code style="background:#1e1e1e;padding:1px 5px;border-radius:4px;font-size:.85em;font-family:monospace;">$1</code>');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+function typewriterAnimate(bubble, rawText, onDone) {
+  // Strip markdown syntax to get plain text for typing animation
+  const plainText = rawText
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/\*([^*\n]+?)\*/g, '$1')
+    .replace(/_([^_\n]+?)_/g, '$1')
+    .replace(/~~(.+?)~~/g, '$1')
+    .replace(/`([^`]+)`/g, '$1');
+
   if (!CONFIG.typewriter.enabled) {
-    bubble.textContent = text;
+    bubble.innerHTML = parseMarkdown(rawText);
     if (onDone) onDone();
     return;
   }
@@ -412,22 +437,21 @@ function typewriterAnimate(bubble, text, onDone) {
   let i = 0;
 
   function tick() {
-    if (i >= text.length) {
+    if (i >= plainText.length) {
+      // Typing done — swap to fully rendered markdown
+      bubble.innerHTML = parseMarkdown(rawText);
       if (onDone) onDone();
       return;
     }
 
-    // Handle emoji — they span multiple code units; advance past the full grapheme
-    const cp = text.codePointAt(i);
+    const cp = plainText.codePointAt(i);
     const char = String.fromCodePoint(cp);
-    const charLen = char.length; // 2 for astral-plane code points (emoji), 1 otherwise
+    const charLen = char.length;
     bubble.textContent += char;
     i += charLen;
 
-    // Scroll while typing
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
-    const next = text[i];
     let delay = CONFIG.typewriter.baseDelay;
     if ('.!?…'.includes(char)) delay += CONFIG.typewriter.punctuationDelay;
     else if (','.includes(char)) delay += CONFIG.typewriter.commaDelay;
@@ -548,11 +572,13 @@ function showGiftPopup() {
   const msg = document.createElement('p');
   msg.textContent = popupText;
   msg.style.cssText = `
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.08rem;
-    line-height: 1.6;
-    color: #e8e0dc;
-    margin-bottom: 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .95rem;
+    font-weight: 300;
+    line-height: 1.65;
+    color: #c8b8b8;
+    letter-spacing: .015em;
+    margin-bottom: 24px;
   `;
 
   const btnRow = document.createElement('div');
@@ -602,8 +628,8 @@ function showGiftPopup() {
     overlay.remove();
   };
 
-  btnRow.appendChild(acceptBtn);
   btnRow.appendChild(rejectBtn);
+  btnRow.appendChild(acceptBtn);
   card.appendChild(emoji);
   card.appendChild(msg);
   card.appendChild(btnRow);
@@ -695,7 +721,7 @@ async function greet() {
     history.push({ role: 'assistant', content: reply });
   } catch {
     hideTyping();
-    appendMessage('ai', `Something error happened 😭`);
+    appendMessage('ai', `${userName}, Kichu akta error hoise mone hoi 🥺`);
   }
 }
 
