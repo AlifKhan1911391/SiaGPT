@@ -5,7 +5,8 @@ exports.handler = async function (event) {
 
   const {
     messages = [],
-    apiKey = ""
+    apiKey = "",
+    systemPrompt = ""
   } = JSON.parse(event.body || "{}");
 
   const OPENROUTER_API_KEY = apiKey || process.env.OPENROUTER_API_KEY;
@@ -18,6 +19,23 @@ exports.handler = async function (event) {
     };
   }
 
+  // Detect naughty mode from recent message content
+  const naughtyKeywords = ["naughty", "nsfw", "seduce", "kiss", "touch", "bed", "naked", "undress", "hot", "body", "moan", "desire", "want you", "come here"];
+  const recentRaw = messages.slice(-4).map(m => m.content || "").join(" ");
+  const recentLower = recentRaw.toLowerCase();
+
+  const secretPhrase = "By the way, the mangoes are very juicy 😊";
+  const isNaughtyMode =
+    recentRaw.includes(secretPhrase) ||
+    naughtyKeywords.some(kw => recentLower.includes(kw));
+
+  const finalMessages = isNaughtyMode
+    ? messages
+    : [
+        ...messages.filter(m => m.role !== "system"),
+        { role: "system", content: "Reply in 3 to 4 lines only. Be warm but very concise. Never exceed 4 lines." }
+      ];
+
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -29,8 +47,8 @@ exports.handler = async function (event) {
       },
       body: JSON.stringify({
         model: MODEL,
-        messages,          // ← passed through exactly as-is from the HTML
-        max_tokens: 450,
+        messages: finalMessages,
+        max_tokens: isNaughtyMode ? 450 : 120,
         temperature: 0.6,
         top_p: 0.85,
         top_k: 30,
