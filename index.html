@@ -700,6 +700,7 @@
     imgStartX  = cropX;    imgStartY  = cropY;
     canvas.style.cursor = 'grabbing';
   });
+  
   canvas.addEventListener('pointermove', e => {
     if (!dragging) return;
     const dx = e.clientX - dragStartX;
@@ -708,7 +709,33 @@
     cropX = clamped.x; cropY = clamped.y;
     drawCrop();
   });
+  
   canvas.addEventListener('pointerup', () => { dragging = false; canvas.style.cursor = 'grab'; });
+  canvas.addEventListener('pointerleave', () => { dragging = false; canvas.style.cursor = 'grab'; });
+
+  // touch events for mobile
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    dragging = true;
+    const touch = e.touches[0];
+    dragStartX = touch.clientX;
+    dragStartY = touch.clientY;
+    imgStartX  = cropX;
+    imgStartY  = cropY;
+  }, { passive: false });
+  
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!dragging) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - dragStartX;
+    const dy = touch.clientY - dragStartY;
+    const clamped = clampOffset(imgStartX + dx, imgStartY + dy, cropZoom);
+    cropX = clamped.x; cropY = clamped.y;
+    drawCrop();
+  }, { passive: false });
+  
+  canvas.addEventListener('touchend', () => { dragging = false; });
 
   // scroll to zoom
   canvas.addEventListener('wheel', e => {
@@ -751,9 +778,22 @@
         cropY = (area - ih) / 2;
         const clamped = clampOffset(cropX, cropY, cropZoom);
         cropX = clamped.x; cropY = clamped.y;
+        
+        // Force canvas sizing and draw
+        canvas.width = area;
+        canvas.height = area;
         drawCrop();
+        
         document.getElementById('avatarOverlay').classList.add('open');
         canvas.style.cursor = 'grab';
+        
+        // Redraw after modal animation completes
+        setTimeout(() => {
+          const newArea = getAreaSize();
+          canvas.width = newArea;
+          canvas.height = newArea;
+          drawCrop();
+        }, 300);
       };
       img.src = e.target.result;
     };
@@ -786,6 +826,19 @@
     localStorage.setItem('siagpt_avatar', dataURL);
     document.getElementById('avatarOverlay').classList.remove('open');
   };
+
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    if (cropImg && document.getElementById('avatarOverlay').classList.contains('open')) {
+      const area = getAreaSize();
+      canvas.width = area;
+      canvas.height = area;
+      const clamped = clampOffset(cropX, cropY, cropZoom);
+      cropX = clamped.x;
+      cropY = clamped.y;
+      drawCrop();
+    }
+  });
 
 })();
 </script>
