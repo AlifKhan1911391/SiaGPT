@@ -595,6 +595,7 @@ Begin as if you're already mid-relationship. Talk emotionally. Stay fully in cha
 let chatHistory  = [];   // conversation turns only (no system msg here)
 let userMsgCount = 0;
 let giftShown    = false;
+console.log('Gift system initialized - will trigger after', CONFIG.gift.triggerAfterMessage, 'messages');
 const messagesEl = document.getElementById('messages');
 
 function timeStr() {
@@ -672,7 +673,9 @@ function hideTyping() { const el = document.getElementById('typingRow'); if (el)
 
 // ── Gift popup ───────────────────────────────────────────
 function showGiftPopup() {
+  console.log('showGiftPopup() called - enabled:', CONFIG.gift.enabled, 'giftShown:', giftShown);
   if (!CONFIG.gift.enabled || giftShown) return;
+  console.log('Creating gift popup...');
   giftShown = true;
 
   const overlay = document.createElement('div');
@@ -763,6 +766,7 @@ async function sendMessage() {
   appendMessage('user', text);
   chatHistory.push({ role: 'user', content: text });
   userMsgCount++;
+  console.log('📨 User message #' + userMsgCount);
   showTyping();
   try {
     const reply = await callOpenRouter(chatHistory);
@@ -770,7 +774,9 @@ async function sendMessage() {
     appendMessage('ai', reply);
     chatHistory.push({ role: 'assistant', content: reply });
     if (chatHistory.length > 40) chatHistory = chatHistory.slice(-38);
+    console.log('🎁 Checking gift: enabled=' + CONFIG.gift.enabled + ' count=' + userMsgCount + ' trigger=' + CONFIG.gift.triggerAfterMessage + ' shown=' + giftShown);
     if (CONFIG.gift.enabled && userMsgCount === CONFIG.gift.triggerAfterMessage && !giftShown) {
+      console.log('✅ TRIGGERING GIFT POPUP NOW!');
       setTimeout(showGiftPopup, 600);
     }
   } catch (err) {
