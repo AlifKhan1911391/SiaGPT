@@ -24,16 +24,13 @@
 
     html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
 
-    /* ── full-screen grid: left hero | right form ── */
     .layout {
       display: grid;
       grid-template-columns: 1fr 420px;
       height: 100vh;
     }
 
-    /* ════════════════════════════════
-       LEFT — hero side
-    ════════════════════════════════ */
+    /* ════ LEFT — hero ════ */
     .hero {
       position: relative;
       display: flex;
@@ -43,7 +40,6 @@
       overflow: hidden;
     }
 
-    /* full-bleed avatar */
     .hero-avatar {
       position: absolute;
       inset: 0;
@@ -55,7 +51,6 @@
     }
     .hero:hover .hero-avatar { filter: brightness(0.44) saturate(0.8); }
 
-    /* dark gradient overlay at bottom */
     .hero::after {
       content: '';
       position: absolute; inset: 0;
@@ -69,7 +64,6 @@
       z-index: 1;
     }
 
-    /* grain */
     .hero::before {
       content: '';
       position: absolute; inset: 0; z-index: 2;
@@ -77,11 +71,8 @@
       pointer-events: none; opacity: 0.5;
     }
 
-    .hero-content {
-      position: relative; z-index: 3;
-    }
+    .hero-content { position: relative; z-index: 3; }
 
-    /* ── LOGO ── */
     .logo {
       font-family: 'Playfair Display', serif;
       font-size: 5.5rem;
@@ -92,7 +83,6 @@
       white-space: nowrap;
       animation: heroIn 1s cubic-bezier(0.16,1,0.3,1) both;
     }
-    /* subtle gradient shimmer on logo */
     .logo span {
       background: linear-gradient(135deg, var(--text) 30%, var(--rose) 100%);
       -webkit-background-clip: text;
@@ -111,24 +101,18 @@
       gap: 2px;
       animation: heroIn 1s 0.1s cubic-bezier(0.16,1,0.3,1) both;
     }
-    .cursor {
-      color: var(--rose);
-      animation: blink 0.85s step-end infinite;
-      font-size: 0.9rem;
-    }
+    .cursor { color: var(--rose); animation: blink 0.85s step-end infinite; font-size: 0.9rem; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    /* rose accent line */
     .hero-line {
-      width: 40px;
-      height: 2px;
+      width: 40px; height: 2px;
       background: var(--rose);
       border-radius: 2px;
       margin-bottom: 20px;
       animation: heroIn 1s 0.05s cubic-bezier(0.16,1,0.3,1) both;
     }
 
-    /* change-avatar hint */
+    /* ── Avatar edit button ── */
     .avatar-change-hint {
       position: absolute;
       top: 24px; left: 24px;
@@ -151,15 +135,10 @@
     .avatar-change-hint .ch-icon { font-size: 0.95rem; }
     #avatarInput { display: none; }
 
-    @keyframes heroIn {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes heroIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
-    /* ════════════════════════════════
-       RIGHT — form panel
-    ════════════════════════════════ */
+    /* ════ RIGHT — form panel ════ */
     .panel {
       background: var(--surface);
       border-left: 1px solid var(--border);
@@ -170,170 +149,146 @@
       overflow-y: auto;
       animation: panelIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
     }
-    @keyframes panelIn {
-      from { opacity:0; transform: translateX(30px); }
-      to   { opacity:1; transform: translateX(0); }
-    }
+    @keyframes panelIn { from { opacity:0; transform: translateX(30px); } to { opacity:1; transform: translateX(0); } }
 
     .panel-eyebrow {
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--rose);
-      margin-bottom: 6px;
-      opacity: 0.8;
+      font-size: 0.62rem; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--rose); margin-bottom: 6px; opacity: 0.8;
     }
     .panel-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.55rem;
-      font-weight: 400;
-      font-style: italic;
-      color: var(--text);
-      margin-bottom: 32px;
-      line-height: 1.2;
+      font-family: 'Playfair Display', serif; font-size: 1.55rem;
+      font-weight: 400; font-style: italic; color: var(--text);
+      margin-bottom: 32px; line-height: 1.2;
     }
 
-    /* fields */
     .field-group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label {
-      font-size: 0.67rem;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted2);
+      font-size: 0.67rem; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted2);
     }
-    input[type="text"],
-    input[type="password"] {
+    input[type="text"], input[type="password"] {
       padding: 11px 14px;
       background: var(--bg);
       border: 1px solid var(--border2);
       border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.875rem;
-      font-weight: 300;
-      color: var(--text);
-      outline: none;
+      font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 300;
+      color: var(--text); outline: none;
       transition: border-color 0.22s, box-shadow 0.22s;
     }
-    input[type="text"]:focus,
-    input[type="password"]:focus {
+    input[type="text"]:focus, input[type="password"]:focus {
       border-color: rgba(232,96,122,0.5);
       box-shadow: 0 0 0 3px var(--rose-dim);
     }
     input::placeholder { color: var(--muted); opacity: 0.6; }
 
-    /* thin separator */
     .sep {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      font-size: 0.6rem;
-      font-weight: 500;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+      font-size: 0.6rem; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted);
     }
-    .sep::before, .sep::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .sep::before, .sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* api box */
     .api-box {
+      border: 1px solid var(--border2); border-radius: 10px;
+      padding: 16px; margin-bottom: 24px; transition: border-color 0.25s;
+    }
+    .api-box:focus-within { border-color: rgba(232,96,122,0.3); }
+    .api-header { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+    .api-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--rose); animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.8)} }
+    .api-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rose); }
+    .api-steps { list-style: none; counter-reset: s; margin-bottom: 10px; }
+    .api-steps li {
+      counter-increment: s; display: flex; align-items: baseline; gap: 7px;
+      font-size: 0.76rem; font-weight: 300; color: var(--muted2); line-height: 1.85; transition: color 0.2s;
+    }
+    .api-steps li:hover { color: var(--text); }
+    .api-steps li::before { content: counter(s); font-size: 0.62rem; color: var(--rose); opacity: 0.65; min-width: 12px; text-align: right; flex-shrink: 0; }
+    .api-steps a { color: var(--rose); text-decoration: none; border-bottom: 1px solid rgba(232,96,122,0.28); transition: opacity 0.2s; }
+    .api-steps a:hover { opacity: 0.8; }
+    .api-note { font-size: 0.71rem; font-weight: 300; color: var(--muted); line-height: 1.55; border-left: 2px solid rgba(232,96,122,0.3); padding: 6px 10px; background: rgba(232,96,122,0.03); border-radius: 0 5px 5px 0; margin-bottom: 12px; }
+
+    /* ════ PERSONALITY SECTION ════ */
+    .personality-box {
       border: 1px solid var(--border2);
       border-radius: 10px;
       padding: 16px;
       margin-bottom: 24px;
       transition: border-color 0.25s;
     }
-    .api-box:focus-within { border-color: rgba(232,96,122,0.3); }
-
-    .api-header {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-bottom: 10px;
+    .personality-header {
+      display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
     }
-    .api-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--rose);
-      animation: pulse 2.4s ease-in-out infinite;
+    .personality-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--rose); animation: pulse 2.4s ease-in-out infinite;
     }
-    @keyframes pulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.8)} }
-    .api-label {
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--rose);
+    .personality-label {
+      font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--rose);
     }
 
-    .api-steps {
-      list-style: none;
-      counter-reset: s;
-      margin-bottom: 10px;
-    }
-    .api-steps li {
-      counter-increment: s;
-      display: flex;
-      align-items: baseline;
-      gap: 7px;
-      font-size: 0.76rem;
-      font-weight: 300;
-      color: var(--muted2);
-      line-height: 1.85;
-      transition: color 0.2s;
-    }
-    .api-steps li:hover { color: var(--text); }
-    .api-steps li::before {
-      content: counter(s);
-      font-size: 0.62rem;
-      color: var(--rose);
-      opacity: 0.65;
-      min-width: 12px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .api-steps a { color: var(--rose); text-decoration: none; border-bottom: 1px solid rgba(232,96,122,0.28); transition: opacity 0.2s; }
-    .api-steps a:hover { opacity: 0.8; }
+    .radio-group { display: flex; flex-direction: column; gap: 8px; }
 
-    .api-note {
-      font-size: 0.71rem;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.55;
-      border-left: 2px solid rgba(232,96,122,0.3);
-      padding: 6px 10px;
-      background: rgba(232,96,122,0.03);
-      border-radius: 0 5px 5px 0;
-      margin-bottom: 12px;
+    .radio-option {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.22s, background 0.22s;
+      position: relative;
     }
+    .radio-option:hover { border-color: rgba(232,96,122,0.35); background: rgba(232,96,122,0.03); }
+    .radio-option.selected { border-color: rgba(232,96,122,0.55); background: rgba(232,96,122,0.07); }
+
+    .radio-option input[type="radio"] {
+      position: absolute; opacity: 0; width: 0; height: 0;
+    }
+
+    .radio-custom {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.22s;
+    }
+    .radio-option.selected .radio-custom { border-color: var(--rose); }
+    .radio-custom::after {
+      content: ''; width: 7px; height: 7px;
+      border-radius: 50%; background: var(--rose);
+      opacity: 0; transform: scale(0);
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .radio-option.selected .radio-custom::after { opacity: 1; transform: scale(1); }
+
+    .radio-text { flex: 1; }
+    .radio-name {
+      font-size: 0.8rem; font-weight: 500; color: var(--text);
+      display: block; margin-bottom: 2px;
+    }
+    .radio-desc {
+      font-size: 0.68rem; font-weight: 300; color: var(--muted2);
+      line-height: 1.5;
+    }
+    .radio-badge {
+      font-size: 0.58rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 2px 7px;
+      border-radius: 100px; border: 1px solid;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .badge-chill { color: #6ec6a0; border-color: rgba(110,198,160,0.35); background: rgba(110,198,160,0.06); }
+    .badge-spicy { color: var(--rose); border-color: rgba(232,96,122,0.35); background: rgba(232,96,122,0.06); }
+    .badge-eng   { color: #7eb8e8; border-color: rgba(126,184,232,0.35); background: rgba(126,184,232,0.06); }
 
     /* CTA */
     .btn-start {
-      width: 100%;
-      padding: 13px;
-      background: var(--rose);
-      border: none;
-      border-radius: 9px;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.875rem;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
+      width: 100%; padding: 13px; background: var(--rose); border: none; border-radius: 9px;
+      color: #fff; font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 500;
+      letter-spacing: 0.04em; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; overflow: hidden;
       box-shadow: 0 4px 28px rgba(232,96,122,0.3);
       transition: background 0.22s, transform 0.18s, box-shadow 0.25s;
     }
@@ -342,57 +297,29 @@
     .btn-arrow { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1); }
     .btn-start:hover .btn-arrow { transform: translateX(4px); }
 
-    /* footer links */
-    .panel-footer {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
+    .panel-footer { display: flex; gap: 8px; margin-top: 16px; }
     .link-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 9px 12px;
-      border: 1px solid var(--border2);
-      border-radius: 8px;
-      background: transparent;
-      color: var(--muted2);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.76rem;
-      font-weight: 400;
-      cursor: pointer;
-      text-decoration: none;
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 12px; border: 1px solid var(--border2); border-radius: 8px;
+      background: transparent; color: var(--muted2);
+      font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 400;
+      cursor: pointer; text-decoration: none;
       transition: border-color 0.22s, color 0.22s, background 0.22s, transform 0.18s;
     }
-    .link-btn:hover {
-      border-color: var(--muted2);
-      color: var(--text);
-      background: rgba(255,255,255,0.025);
-      transform: translateY(-1px);
-    }
+    .link-btn:hover { border-color: var(--muted2); color: var(--text); background: rgba(255,255,255,0.025); transform: translateY(-1px); }
     .link-btn.rose:hover { border-color: rgba(232,96,122,0.4); color: var(--rose); background: rgba(232,96,122,0.05); }
     .link-btn:active { transform: none; }
 
-    /* ════════════════════════════════
-       MODAL
-    ════════════════════════════════ */
+    /* ════ AVATAR CROP MODAL ════ */
     .overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.82);
-      backdrop-filter: blur(10px);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(10px);
+      z-index: 200; align-items: center; justify-content: center;
     }
     .overlay.open { display: flex; animation: fadeIn 0.2s ease; }
     .modal {
-      background: var(--surface2);
-      border: 1px solid var(--border2);
-      border-radius: 16px;
-      padding: 30px 26px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 16px; padding: 30px 26px;
       width: 90%; max-width: 400px;
       box-shadow: 0 32px 80px rgba(0,0,0,0.6);
       animation: popIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
@@ -431,13 +358,34 @@
     .success-msg .s-icon { font-size: 1.8rem; }
     .success-msg p { color: var(--muted2); font-size: 0.82rem; margin-top: 8px; }
 
-    /* shake */
+    /* ── Avatar crop UI ── */
+    #avatarModal .crop-area {
+      position: relative; width: 100%; padding-bottom: 100%;
+      background: #0a0a0a; border: 1px solid var(--border2);
+      border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+      cursor: crosshair;
+    }
+    #avatarModal canvas#cropCanvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    #avatarModal .crop-hint {
+      font-size: 0.7rem; color: var(--muted); text-align: center;
+      margin-bottom: 14px; line-height: 1.5;
+    }
+    #avatarModal .zoom-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    #avatarModal .zoom-row label { font-size: 0.65rem; color: var(--muted2); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+    #avatarModal input[type="range"] {
+      flex: 1; accent-color: var(--rose);
+      height: 3px; cursor: pointer; background: transparent;
+    }
+
     @keyframes shake {
       0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)}
       40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)}
     }
 
-    /* ── MOBILE ── */
     @media (max-width: 740px) {
       html, body { overflow: auto; }
       .layout { grid-template-columns: 1fr; grid-template-rows: 44vh auto; height: auto; }
@@ -456,8 +404,8 @@
     <img id="avatarPreview" class="hero-avatar" src="avatar.png" alt="Avatar"
          onerror="this.src='https://api.dicebear.com/8.x/adventurer/svg?seed=Sia&backgroundColor=111111'" />
 
-    <div class="avatar-change-hint" onclick="document.getElementById('avatarInput').click()">
-      <span class="ch-icon">✎</span> Change avatar
+    <div class="avatar-change-hint" onclick="openAvatarModal()">
+      <span class="ch-icon">✎</span> Edit avatar
     </div>
     <input type="file" id="avatarInput" accept="image/*" />
 
@@ -506,6 +454,49 @@
       </div>
     </div>
 
+    <div class="sep">Personality</div>
+
+    <!-- ── NEW: Define Girlfriend Personality ── -->
+    <div class="personality-box">
+      <div class="personality-header">
+        <div class="personality-dot"></div>
+        <span class="personality-label">Define your girlfriend personality</span>
+      </div>
+      <div class="radio-group" id="personalityGroup">
+
+        <label class="radio-option selected" data-page="chill.html">
+          <input type="radio" name="personality" value="chill.html" checked />
+          <span class="radio-custom"></span>
+          <span class="radio-text">
+            <span class="radio-name">Chill Girl 🌸</span>
+            <span class="radio-desc">Sweet, romantic & clingy. Romanized Bangla mix. Dramatic but adorable.</span>
+          </span>
+          <span class="radio-badge badge-chill">Bangla</span>
+        </label>
+
+        <label class="radio-option" data-page="chat.html">
+          <input type="radio" name="personality" value="chat.html" />
+          <span class="radio-custom"></span>
+          <span class="radio-text">
+            <span class="radio-name">Extremely Seductive & Naughty 🔥</span>
+            <span class="radio-desc">Bold, flirty & seductive. Full character immersion mode.</span>
+          </span>
+          <span class="radio-badge badge-spicy">Spicy</span>
+        </label>
+
+        <label class="radio-option" data-page="chill_eng.html">
+          <input type="radio" name="personality" value="chill_eng.html" />
+          <span class="radio-custom"></span>
+          <span class="radio-text">
+            <span class="radio-name">Chill Girl — English 💬</span>
+            <span class="radio-desc">Same chaotic energy, 100% in English. Perfect emotional mess.</span>
+          </span>
+          <span class="radio-badge badge-eng">English</span>
+        </label>
+
+      </div>
+    </div>
+
     <button class="btn-start" onclick="startChat()">
       Start Chatting <span class="btn-arrow">→</span>
     </button>
@@ -516,6 +507,26 @@
     </div>
   </div>
 
+</div>
+
+<!-- ░░ AVATAR CROP MODAL ░░ -->
+<div class="overlay" id="avatarOverlay" onclick="closeAvatarModal(event)">
+  <div class="modal" id="avatarModal">
+    <h3>Edit Avatar</h3>
+    <p class="sub">Drag to reposition · scroll or use slider to zoom · exports at 800×800</p>
+    <div class="crop-area" id="cropArea">
+      <canvas id="cropCanvas"></canvas>
+    </div>
+    <div class="crop-hint">Drag the image to frame her perfectly.</div>
+    <div class="zoom-row">
+      <label>Zoom</label>
+      <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" onclick="closeAvatarModal()">Cancel</button>
+      <button type="button" class="btn-submit" onclick="applyCrop()">Apply (800×800)</button>
+    </div>
+  </div>
 </div>
 
 <!-- ░░ BUG MODAL ░░ -->
@@ -547,7 +558,7 @@
 <script>
 (function () {
 
-  // Tagline typewriter
+  // ── Tagline typewriter ────────────────────────────────────
   const el  = document.getElementById('taglineText');
   const str = "Hotter than your ex, better than your next 😏";
   function type() {
@@ -561,34 +572,37 @@
   }
   setTimeout(type, 600);
 
-  // Restore saved data
+  // ── Restore saved data ───────────────────────────────────
   const su = localStorage.getItem('siagpt_user');
   const sg = localStorage.getItem('siagpt_gf');
   const sk = localStorage.getItem('siagpt_apikey');
   const sa = localStorage.getItem('siagpt_avatar');
+  const sp = localStorage.getItem('siagpt_personality') || 'chill.html';
   if (su) document.getElementById('userName').value = su;
   if (sg) document.getElementById('gfName').value   = sg;
   if (sk) document.getElementById('apiKey').value   = sk;
   if (sa) { const av = document.getElementById('avatarPreview'); av.src = sa; av.removeAttribute('onerror'); }
 
-  // Avatar upload
-  document.getElementById('avatarInput').addEventListener('change', function () {
-    const file = this.files[0]; if (!file) return;
-    const r = new FileReader();
-    r.onload = e => {
-      const av = document.getElementById('avatarPreview');
-      av.src = e.target.result; av.removeAttribute('onerror');
-      localStorage.setItem('siagpt_avatar', e.target.result);
-    };
-    r.readAsDataURL(file);
+  // Restore personality selection
+  document.querySelectorAll('.radio-option').forEach(opt => {
+    opt.classList.remove('selected');
+    const inp = opt.querySelector('input[type="radio"]');
+    if (inp.value === sp) { inp.checked = true; opt.classList.add('selected'); }
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      inp.checked = true;
+    });
   });
 
-  // Start chat
+  // ── Start chat ───────────────────────────────────────────
   window.startChat = function () {
     const userName = document.getElementById('userName').value.trim() || 'User';
     const gfName   = document.getElementById('gfName').value.trim()   || 'Sia';
     const apiKey   = document.getElementById('apiKey').value.trim();
     const avatar   = localStorage.getItem('siagpt_avatar') || document.getElementById('avatarPreview').src;
+    const page     = document.querySelector('input[name="personality"]:checked')?.value || 'chill.html';
+
     if (!apiKey) {
       const inp = document.getElementById('apiKey');
       inp.focus();
@@ -598,24 +612,24 @@
       inp.addEventListener('animationend', () => { inp.style.animation = ''; }, { once: true });
       return;
     }
-    localStorage.setItem('siagpt_user',   userName);
-    localStorage.setItem('siagpt_gf',     gfName);
-    localStorage.setItem('siagpt_avatar', avatar);
-    localStorage.setItem('siagpt_apikey', apiKey);
-    window.location.href = 'chat.html';
+    localStorage.setItem('siagpt_user',        userName);
+    localStorage.setItem('siagpt_gf',          gfName);
+    localStorage.setItem('siagpt_avatar',      avatar);
+    localStorage.setItem('siagpt_apikey',      apiKey);
+    localStorage.setItem('siagpt_personality', page);
+    window.location.href = page;
   };
 
   document.querySelectorAll('input').forEach(el => {
     el.addEventListener('keydown', e => { if (e.key === 'Enter') window.startChat(); });
   });
 
-  // Modal
+  // ── Bug modal ────────────────────────────────────────────
   window.openBugModal  = () => document.getElementById('bugOverlay').classList.add('open');
   window.closeBugModal = (e) => {
     if (!e || e.target === document.getElementById('bugOverlay'))
       document.getElementById('bugOverlay').classList.remove('open');
   };
-
   document.getElementById('bugForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     try {
@@ -630,6 +644,148 @@
       }
     } catch (_) {}
   });
+
+  // ════════════════════════════════════════════════════════
+  //  AVATAR CROP (800×800 canvas-based)
+  // ════════════════════════════════════════════════════════
+  let cropImg    = null;
+  let cropX      = 0, cropY = 0;
+  let cropZoom   = 1;
+  let dragging   = false;
+  let dragStartX = 0, dragStartY = 0;
+  let imgStartX  = 0, imgStartY  = 0;
+  const EXPORT_SIZE = 800;
+
+  const canvas    = document.getElementById('cropCanvas');
+  const ctx       = canvas.getContext('2d');
+  const zoomSlider = document.getElementById('zoomSlider');
+
+  function getAreaSize() {
+    const area = document.getElementById('cropArea');
+    return area.getBoundingClientRect().width; // square
+  }
+
+  function clampOffset(x, y, zoom) {
+    const area = getAreaSize();
+    const iw = cropImg.naturalWidth  * zoom * (area / EXPORT_SIZE);
+    const ih = cropImg.naturalHeight * zoom * (area / EXPORT_SIZE);
+    const minX = area - iw, minY = area - ih;
+    return {
+      x: Math.min(0, Math.max(minX, x)),
+      y: Math.min(0, Math.max(minY, y))
+    };
+  }
+
+  function drawCrop() {
+    if (!cropImg) return;
+    const area = getAreaSize();
+    canvas.width  = area;
+    canvas.height = area;
+    const scale = area / EXPORT_SIZE;
+    const iw = cropImg.naturalWidth  * cropZoom * scale;
+    const ih = cropImg.naturalHeight * cropZoom * scale;
+    ctx.clearRect(0, 0, area, area);
+    ctx.drawImage(cropImg, cropX, cropY, iw, ih);
+    // vignette overlay
+    const grd = ctx.createRadialGradient(area/2, area/2, area*0.3, area/2, area/2, area*0.72);
+    grd.addColorStop(0, 'rgba(0,0,0,0)');
+    grd.addColorStop(1, 'rgba(0,0,0,0.32)');
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, area, area);
+  }
+
+  // pointer events for drag
+  canvas.addEventListener('pointerdown', e => {
+    dragging = true; canvas.setPointerCapture(e.pointerId);
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    imgStartX  = cropX;    imgStartY  = cropY;
+    canvas.style.cursor = 'grabbing';
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+    const clamped = clampOffset(imgStartX + dx, imgStartY + dy, cropZoom);
+    cropX = clamped.x; cropY = clamped.y;
+    drawCrop();
+  });
+  canvas.addEventListener('pointerup', () => { dragging = false; canvas.style.cursor = 'grab'; });
+
+  // scroll to zoom
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.05 : 0.05;
+    cropZoom = Math.min(3, Math.max(1, cropZoom + delta));
+    zoomSlider.value = Math.round(cropZoom * 100);
+    const clamped = clampOffset(cropX, cropY, cropZoom);
+    cropX = clamped.x; cropY = clamped.y;
+    drawCrop();
+  }, { passive: false });
+
+  zoomSlider.addEventListener('input', () => {
+    cropZoom = zoomSlider.value / 100;
+    const clamped = clampOffset(cropX, cropY, cropZoom);
+    cropX = clamped.x; cropY = clamped.y;
+    drawCrop();
+  });
+
+  // open avatar modal — triggered by file pick
+  window.openAvatarModal = function () {
+    document.getElementById('avatarInput').click();
+  };
+
+  document.getElementById('avatarInput').addEventListener('change', function () {
+    const file = this.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        cropImg  = img;
+        cropZoom = 1; cropX = 0; cropY = 0;
+        zoomSlider.value = 100;
+        // center image
+        const area = getAreaSize();
+        const scale = area / EXPORT_SIZE;
+        const iw = img.naturalWidth  * scale;
+        const ih = img.naturalHeight * scale;
+        cropX = (area - iw) / 2;
+        cropY = (area - ih) / 2;
+        const clamped = clampOffset(cropX, cropY, cropZoom);
+        cropX = clamped.x; cropY = clamped.y;
+        drawCrop();
+        document.getElementById('avatarOverlay').classList.add('open');
+        canvas.style.cursor = 'grab';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    this.value = ''; // reset so same file can be re-picked
+  });
+
+  window.closeAvatarModal = function (e) {
+    if (!e || e.target === document.getElementById('avatarOverlay'))
+      document.getElementById('avatarOverlay').classList.remove('open');
+  };
+
+  window.applyCrop = function () {
+    if (!cropImg) return;
+    // render at 800×800
+    const offscreen = document.createElement('canvas');
+    offscreen.width = offscreen.height = EXPORT_SIZE;
+    const octx = offscreen.getContext('2d');
+    const area  = getAreaSize();
+    const scale = area / EXPORT_SIZE;
+    // scale cropX/Y back to 800-space
+    const ox = cropX / scale;
+    const oy = cropY / scale;
+    const iw = cropImg.naturalWidth  * cropZoom;
+    const ih = cropImg.naturalHeight * cropZoom;
+    octx.drawImage(cropImg, ox, oy, iw, ih);
+    const dataURL = offscreen.toDataURL('image/jpeg', 0.92);
+    const av = document.getElementById('avatarPreview');
+    av.src = dataURL; av.removeAttribute('onerror');
+    localStorage.setItem('siagpt_avatar', dataURL);
+    document.getElementById('avatarOverlay').classList.remove('open');
+  };
 
 })();
 </script>
