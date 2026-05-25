@@ -24,25 +24,11 @@
 
     html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
 
-    /* ── PC wrapper — centres the card on very wide screens ── */
-    .layout-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100vh;
-      background: var(--bg);
-    }
-
     .layout {
       display: grid;
       grid-template-columns: 1fr 420px;
-      width: 100%;
-      max-width: 1280px;
       height: 100vh;
-      max-height: 100vh;
       min-width: 0;
-      box-shadow: 0 0 0 1px var(--border);
     }
 
     /* ════ LEFT — hero ════ */
@@ -160,14 +146,12 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 40px 40px;
+      padding: 48px 40px;
       overflow-y: auto;
       animation: panelIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
       min-width: 0;
       width: 420px;
       max-width: 420px;
-      height: 100vh;
-      max-height: 100vh;
     }
     @keyframes panelIn { from { opacity:0; transform: translateX(30px); } to { opacity:1; transform: translateX(0); } }
 
@@ -406,54 +390,85 @@
       40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)}
     }
 
-    /* ════ PC BREAKPOINTS ════ */
+    /* ════ PC / DESKTOP RESPONSIVE ════
+       Strategy: constrain max-width of the whole layout, center it,
+       scale the panel gracefully, and boost hero text at large sizes.
+       Mobile (≤740px) is left exactly as it was.
+    ═══════════════════════════════════ */
 
-    /* Large PC: > 1280px — layout is capped at 1280px, sides get background fill */
-    @media (min-width: 1281px) {
-      .layout-wrap { background: #050505; }
-      .layout { border-radius: 0; }
+    /* Root layout: never let the design stretch into oblivion on ultrawide */
+    .layout {
+      max-width: 1600px;
+      margin: 0 auto;
     }
 
-    /* Medium PC: 1024–1280px */
-    @media (min-width: 1025px) and (max-width: 1280px) {
-      .layout { grid-template-columns: 1fr 400px; }
-      .panel { width: 400px; max-width: 400px; padding: 36px 32px; }
-      .logo { font-size: 4.8rem; }
+    /* For screens wider than 1600px, center the layout and fill the sides */
+    @media (min-width: 1600px) {
+      body { display: flex; align-items: stretch; justify-content: center; }
+      .layout {
+        width: 100%;
+        flex-shrink: 0;
+      }
+      /* Fill leftover space on both sides with bg color */
+      body::before, body::after {
+        content: '';
+        flex: 1;
+        background: var(--bg);
+      }
     }
 
-    /* Small PC / large tablet: 860–1024px */
-    @media (min-width: 861px) and (max-width: 1024px) {
-      .layout { grid-template-columns: 1fr 360px; }
-      .panel { width: 360px; max-width: 360px; padding: 32px 26px; }
-      .logo { font-size: 4rem; }
-      .hero { padding: 0 0 48px 40px; }
+    /* Large desktops: 1280px–1599px — give the hero more breathing room */
+    @media (min-width: 1280px) {
+      .layout { grid-template-columns: 1fr 460px; }
+      .panel { width: 460px; max-width: 460px; padding: 52px 44px; }
+      .logo { font-size: 6.5rem; }
+      .hero { padding: 0 0 72px 80px; }
     }
 
-    /* Tablet landscape: 741–860px */
-    @media (min-width: 741px) and (max-width: 860px) {
-      .layout { grid-template-columns: 1fr 310px; }
-      .panel { width: 310px; max-width: 310px; padding: 24px 18px; }
-      .logo { font-size: 3.2rem; }
-      .hero { padding: 0 0 40px 28px; }
+    /* Standard desktops: 1024px–1279px — the default sweet spot */
+    @media (min-width: 1024px) and (max-width: 1279px) {
+      .layout { grid-template-columns: 1fr 420px; }
+      .panel { width: 420px; max-width: 420px; padding: 48px 40px; }
+      .logo { font-size: 5.5rem; }
+      .hero { padding: 0 0 64px 64px; }
+    }
+
+    /* Small desktops / large tablets: 860px–1023px */
+    @media (min-width: 860px) and (max-width: 1023px) {
+      .layout { grid-template-columns: 1fr 380px; }
+      .panel { width: 380px; max-width: 380px; padding: 40px 32px; }
+      .logo { font-size: 4.4rem; }
+      .hero { padding: 0 0 52px 48px; }
+    }
+
+    /* Tablets landscape / small desktops: 741px–859px */
+    @media (min-width: 741px) and (max-width: 859px) {
+      .layout { grid-template-columns: 1fr 320px; }
+      .panel {
+        width: 320px; max-width: 320px;
+        padding: 28px 22px;
+        overflow-y: auto;
+      }
+      .logo { font-size: 3.4rem; }
+      .hero { padding: 0 0 40px 32px; }
       .panel-heading { font-size: 1.3rem; margin-bottom: 22px; }
       .field-group { gap: 10px; margin-bottom: 20px; }
-      .api-box, .personality-box { padding: 12px; margin-bottom: 18px; }
+      .api-box, .personality-box { padding: 12px; margin-bottom: 16px; }
+      .radio-option { padding: 8px 10px; }
     }
 
-    /* Mobile: ≤ 740px — keep original design untouched */
+    /* ════ MOBILE — unchanged ════ */
     @media (max-width: 740px) {
       html, body { overflow: auto; }
-      .layout-wrap { height: auto; align-items: flex-start; }
-      .layout { grid-template-columns: 1fr; grid-template-rows: 44vh auto; height: auto; max-height: none; box-shadow: none; }
+      .layout { grid-template-columns: 1fr; grid-template-rows: 44vh auto; height: auto; max-width: 100%; }
       .hero { padding: 0 0 36px 28px; }
       .logo { font-size: 3.6rem; }
-      .panel { width: 100%; max-width: 100%; height: auto; max-height: none; padding: 36px 24px 52px; border-left: none; border-top: 1px solid var(--border); }
+      .panel { padding: 36px 24px 52px; border-left: none; border-top: 1px solid var(--border); width: 100%; max-width: 100%; }
     }
   </style>
 </head>
 <body>
 
-<div class="layout-wrap">
 <div class="layout">
 
   <!-- ░░ LEFT — HERO ░░ -->
@@ -564,8 +579,7 @@
     </div>
   </div>
 
-</div><!-- /layout -->
-</div><!-- /layout-wrap -->
+</div>
 
 <!-- ░░ AVATAR CROP MODAL ░░ -->
 <div class="overlay" id="avatarOverlay" onclick="closeAvatarModal(event)">
