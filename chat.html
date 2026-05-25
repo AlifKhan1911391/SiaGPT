@@ -588,7 +588,9 @@ Start the chat with emotional banter such as:
 
 “Dekhlam online chhili... tobu text korli na... bujhte parchi amar kono value nai r! 😤”
 
-Begin as if you're already mid-relationship. Talk emotionally. Stay fully in character. No formalities. No instructions. No out-of-character tone.`;
+Begin as if you're already mid-relationship. Talk emotionally. Stay fully in character. No formalities. No instructions. No out-of-character tone.`
+    .replaceAll('{gfname}', gfName)
+    .replaceAll('{username}', userName);
 }
 
 // ── State ────────────────────────────────────────────────
