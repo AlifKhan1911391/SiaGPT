@@ -626,9 +626,9 @@
 
 
     /* =========================================
-       PC DESIGN (NEW)
-       Top 40%: Full-width Avatar (no stretch)
-       Bottom 60%: Clean Dashboard Card
+       PC DESIGN (Same Style as Mobile)
+       Top 40%: Avatar + Gradient + SiaGPT Text
+       Bottom 60%: Clean Form Panel
        ========================================= */
     @media (min-width: 741px) {
 
@@ -654,56 +654,146 @@
         flex-shrink: 0;
         overflow: hidden;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding: 0 0 40px 60px;
       }
 
       .hero-avatar {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover; /* No stretching, just crops like mobile */
         object-position: center top;
-        filter: brightness(0.6) saturate(0.9);
+        filter: brightness(0.38) saturate(0.7);
         transition: filter 0.6s;
       }
 
       .hero-avatar:hover {
-        filter: brightness(0.7) saturate(1.1);
+        filter: brightness(0.44) saturate(0.8);
+      }
+
+      .hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          transparent 20%,
+          rgba(10,10,10,0.5) 55%,
+          rgba(10,10,10,0.92) 80%,
+          var(--bg) 100%
+        );
+        z-index: 1;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 3;
+      }
+
+      .logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 4.5rem;
+        font-weight: 700;
+        line-height: 0.9;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        white-space: nowrap;
+        animation: heroIn 1s cubic-bezier(0.16,1,0.3,1) both;
+      }
+
+      .logo span {
+        background: linear-gradient(135deg, var(--text) 30%, var(--rose) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-sub {
+        margin-top: 16px;
+        font-size: 0.9rem;
+        font-weight: 300;
+        color: var(--muted2);
+        letter-spacing: 0.04em;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        animation: heroIn 1s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+      }
+
+      .cursor {
+        color: var(--rose);
+        animation: blink 0.85s step-end infinite;
+        font-size: 0.9rem;
+      }
+
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+
+      .hero-line {
+        width: 40px;
+        height: 2px;
+        background: var(--rose);
+        border-radius: 2px;
+        margin-bottom: 20px;
+        animation: heroIn 1s 0.05s cubic-bezier(0.16,1,0.3,1) both;
+      }
+
+      @keyframes heroIn {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       .avatar-change-hint {
         position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 24px;
+        left: 24px;
         z-index: 4;
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 16px;
-        background: rgba(10,10,10,0.75);
+        padding: 8px 14px 8px 10px;
+        background: rgba(10,10,10,0.72);
         border: 1px solid var(--border2);
         border-radius: 100px;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         color: var(--muted2);
         cursor: pointer;
-        backdrop-filter: blur(10px);
-        transition: border-color 0.25s, color 0.25s, background 0.25s;
+        backdrop-filter: blur(8px);
+        transition: border-color 0.25s, color 0.25s;
+        animation: fadeIn 1s 0.5s both;
       }
 
       .avatar-change-hint:hover {
         border-color: var(--rose);
         color: var(--rose);
-        background: rgba(232,96,122,0.15);
+      }
+
+      .avatar-change-hint .ch-icon {
+        font-size: 0.95rem;
       }
 
       #avatarInput {
         display: none;
       }
 
-      /* Hide hero text on PC (clean look) */
-      .hero-content {
-        display: none;
+      @keyframes fadeIn {
+        from { opacity:0; }
+        to { opacity:1; }
       }
 
       /* --- BOTTOM SECTION: 60% HEIGHT --- */
@@ -716,19 +806,18 @@
         justify-content: flex-start;
         padding: 30px 20px 20px;
         overflow-y: auto;
-        background: var(--surface);
-        border-top: 1px solid var(--border);
+        background: var(--bg);
       }
 
       /* Glass Card Container */
       .panel-card {
-        background: var(--surface2);
-        border: 1px solid var(--border2);
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 20px;
         padding: 28px 32px;
         max-width: 560px;
         width: 100%;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
       }
 
       .panel-eyebrow {
@@ -810,7 +899,7 @@
       }
 
       .api-box {
-        background: var(--bg);
+        background: var(--surface2);
         border: 1px solid var(--border2);
         border-radius: 10px;
         padding: 14px 16px;
@@ -884,7 +973,7 @@
       }
 
       .personality-box {
-        background: var(--bg);
+        background: var(--surface2);
         border: 1px solid var(--border2);
         border-radius: 10px;
         padding: 14px 16px;
@@ -1310,7 +1399,7 @@
 <div class="layout">
 
   <!-- ==========================================
-       TOP: HERO / AVATAR (Full width, no stretch)
+       TOP: HERO (40% - Same Style as Mobile)
        ========================================== -->
   <div class="hero">
     <img id="avatarPreview" class="hero-avatar" src="avatar.png" alt="Avatar"
@@ -1321,7 +1410,6 @@
     </div>
     <input type="file" id="avatarInput" accept="image/*" />
 
-    <!-- Hidden on PC -->
     <div class="hero-content">
       <div class="hero-line"></div>
       <h1 class="logo"><span>SiaGPT</span></h1>
@@ -1332,7 +1420,7 @@
   </div>
 
   <!-- ==========================================
-       BOTTOM: FORM PANEL (Inside Card)
+       BOTTOM: PANEL (60% - Clean Card)
        ========================================== -->
   <div class="panel">
     <div class="panel-card">
