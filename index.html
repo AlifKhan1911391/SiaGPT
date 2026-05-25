@@ -57,7 +57,6 @@
         max-width: 100%;
       }
 
-      /* --- Left: Hero --- */
       .hero {
         position: relative;
         display: flex;
@@ -204,7 +203,6 @@
         to { opacity:1; }
       }
 
-      /* --- Right: Panel (Mobile) --- */
       .panel {
         padding: 36px 24px 52px;
         border-left: none;
@@ -542,7 +540,6 @@
         background: rgba(126,184,232,0.06);
       }
 
-      /* --- CTA Button --- */
       .btn-start {
         width: 100%;
         padding: 13px;
@@ -629,149 +626,134 @@
 
 
     /* =========================================
-       PC DESIGN (NEW & CLEAN)
+       PC DESIGN (NEW)
+       Top 40%: Full-width Avatar (no stretch)
+       Bottom 60%: Clean Dashboard Card
        ========================================= */
     @media (min-width: 741px) {
 
       body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: radial-gradient(circle at 20% 30%, #1a1515, #0a0a0a 70%);
+        overflow: hidden;
+        background: var(--bg);
       }
 
-      /* PC Layout Container */
       .layout {
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+        height: 100vh;
         width: 100%;
-        max-width: 1200px;
-        padding: 40px;
-        gap: 60px;
-        height: auto;
+        max-width: 100%;
+        margin: 0 auto;
       }
 
-      /* Left: Avatar / Visuals */
+      /* --- TOP SECTION: 40% HEIGHT --- */
       .hero {
-        flex: 1;
-        max-width: 500px;
+        position: relative;
+        height: 40vh;
+        width: 100%;
+        flex-shrink: 0;
+        overflow: hidden;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        position: relative;
-        padding: 20px;
       }
 
       .hero-avatar {
         width: 100%;
-        max-width: 400px;
-        height: auto;
-        aspect-ratio: 1/1;
-        object-fit: cover;
-        border-radius: 30px;
-        box-shadow: 0 20px 80px rgba(0,0,0,0.8);
-        border: 1px solid var(--border2);
-        transition: transform 0.4s ease;
+        height: 100%;
+        object-fit: cover; /* No stretching, just crops like mobile */
+        object-position: center top;
+        filter: brightness(0.6) saturate(0.9);
+        transition: filter 0.6s;
       }
 
       .hero-avatar:hover {
-        transform: scale(1.02);
+        filter: brightness(0.7) saturate(1.1);
       }
 
       .avatar-change-hint {
-        margin-top: 20px;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 4;
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 10px 18px;
-        background: rgba(255,255,255,0.05);
+        padding: 8px 16px;
+        background: rgba(10,10,10,0.75);
         border: 1px solid var(--border2);
         border-radius: 100px;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--muted2);
         cursor: pointer;
+        backdrop-filter: blur(10px);
         transition: border-color 0.25s, color 0.25s, background 0.25s;
       }
 
       .avatar-change-hint:hover {
         border-color: var(--rose);
         color: var(--rose);
-        background: rgba(232,96,122,0.08);
+        background: rgba(232,96,122,0.15);
       }
 
+      #avatarInput {
+        display: none;
+      }
+
+      /* Hide hero text on PC (clean look) */
       .hero-content {
-        margin-top: 20px;
-        text-align: center;
+        display: none;
       }
 
-      .logo {
-        font-family: 'Playfair Display', serif;
-        font-size: 4rem;
-        font-weight: 700;
-        color: var(--text);
-      }
-
-      .logo span {
-        background: linear-gradient(135deg, var(--text) 30%, var(--rose) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .hero-sub {
-        font-size: 0.95rem;
-        color: var(--muted2);
-        margin-top: 6px;
-        font-weight: 300;
-      }
-
-      .cursor {
-        color: var(--rose);
-        animation: blink 0.85s step-end infinite;
-      }
-
-      .hero-line {
-        display: none; /* Hide decorative line on PC */
-      }
-
-      /* Right: Form Panel */
+      /* --- BOTTOM SECTION: 60% HEIGHT --- */
       .panel {
-        flex: 1;
-        max-width: 520px;
+        height: 60vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 30px 20px 20px;
+        overflow-y: auto;
         background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 40px 44px;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        border-top: 1px solid var(--border);
+      }
+
+      /* Glass Card Container */
+      .panel-card {
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 20px;
+        padding: 28px 32px;
+        max-width: 560px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
       }
 
       .panel-eyebrow {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 500;
         letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--rose);
-        margin-bottom: 4px;
+        margin-bottom: 2px;
       }
 
       .panel-heading {
         font-family: 'Playfair Display', serif;
-        font-size: 2rem;
+        font-size: 1.6rem;
         font-weight: 400;
         font-style: italic;
         color: var(--text);
-        margin-bottom: 28px;
+        margin-bottom: 20px;
       }
 
       .field-group {
         display: flex;
         flex-direction: column;
-        gap: 14px;
-        margin-bottom: 24px;
+        gap: 12px;
+        margin-bottom: 18px;
       }
 
       .field {
@@ -781,7 +763,7 @@
       }
 
       .field label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 500;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -790,12 +772,12 @@
 
       input[type="text"],
       input[type="password"] {
-        padding: 12px 16px;
+        padding: 10px 14px;
         background: var(--bg);
         border: 1px solid var(--border2);
-        border-radius: 10px;
+        border-radius: 8px;
         font-family: 'Inter', sans-serif;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 300;
         color: var(--text);
         outline: none;
@@ -804,15 +786,15 @@
 
       input:focus {
         border-color: rgba(232,96,122,0.5);
-        box-shadow: 0 0 0 4px var(--rose-dim);
+        box-shadow: 0 0 0 3px var(--rose-dim);
       }
 
       .sep {
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 20px;
-        font-size: 0.65rem;
+        margin-bottom: 16px;
+        font-size: 0.6rem;
         font-weight: 500;
         letter-spacing: 0.16em;
         text-transform: uppercase;
@@ -828,30 +810,30 @@
       }
 
       .api-box {
-        background: var(--surface2);
+        background: var(--bg);
         border: 1px solid var(--border2);
-        border-radius: 12px;
-        padding: 18px 20px;
-        margin-bottom: 20px;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
       }
 
       .api-header {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
+        gap: 7px;
+        margin-bottom: 8px;
       }
 
       .api-dot {
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
         background: var(--rose);
         animation: pulse 2.4s ease-in-out infinite;
       }
 
       .api-label {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 500;
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -861,26 +843,26 @@
       .api-steps {
         list-style: none;
         counter-reset: s;
-        margin-bottom: 14px;
+        margin-bottom: 8px;
       }
 
       .api-steps li {
         counter-increment: s;
         display: flex;
         align-items: baseline;
-        gap: 8px;
-        font-size: 0.85rem;
+        gap: 7px;
+        font-size: 0.75rem;
         font-weight: 300;
         color: var(--muted2);
-        line-height: 2;
+        line-height: 1.8;
       }
 
       .api-steps li::before {
         content: counter(s);
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         color: var(--rose);
         opacity: 0.65;
-        min-width: 16px;
+        min-width: 14px;
         text-align: right;
       }
 
@@ -890,46 +872,42 @@
         border-bottom: 1px solid rgba(232,96,122,0.3);
       }
 
-      .api-steps a:hover {
-        opacity: 0.8;
-      }
-
       .api-note {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--muted);
         line-height: 1.5;
-        border-left: 3px solid var(--rose);
-        padding-left: 12px;
-        margin-bottom: 14px;
+        border-left: 2px solid var(--rose);
+        padding-left: 10px;
+        margin-bottom: 10px;
         background: rgba(232,96,122,0.03);
-        border-radius: 0 6px 6px 0;
+        border-radius: 0 4px 4px 0;
       }
 
       .personality-box {
-        background: var(--surface2);
+        background: var(--bg);
         border: 1px solid var(--border2);
-        border-radius: 12px;
-        padding: 18px 20px;
-        margin-bottom: 24px;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
       }
 
       .personality-header {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 14px;
+        gap: 7px;
+        margin-bottom: 10px;
       }
 
       .personality-dot {
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
         background: var(--rose);
         animation: pulse 2.4s ease-in-out infinite;
       }
 
       .personality-label {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 500;
         letter-spacing: 0.14em;
         text-transform: uppercase;
@@ -939,22 +917,22 @@
       .radio-group {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 6px;
       }
 
       .radio-option {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px 14px;
+        gap: 10px;
+        padding: 8px 12px;
         border: 1px solid var(--border2);
-        border-radius: 10px;
+        border-radius: 8px;
         cursor: pointer;
         transition: border-color 0.22s, background 0.22s;
       }
 
       .radio-option:hover {
-        border-color: rgba(232,96,122,0.3);
+        border-color: rgba(232,96,122,0.35);
         background: rgba(232,96,122,0.03);
       }
 
@@ -968,10 +946,10 @@
       }
 
       .radio-custom {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
-        border: 2px solid var(--border2);
+        border: 1.5px solid var(--border2);
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -985,8 +963,8 @@
 
       .radio-custom::after {
         content: '';
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
         background: var(--rose);
         opacity: 0;
@@ -1004,25 +982,25 @@
       }
 
       .radio-name {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 500;
         color: var(--text);
         display: block;
       }
 
       .radio-desc {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 300;
         color: var(--muted2);
         line-height: 1.4;
       }
 
       .radio-badge {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         font-weight: 600;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        padding: 2px 10px;
+        padding: 2px 8px;
         border-radius: 100px;
         border: 1px solid;
         flex-shrink: 0;
@@ -1030,49 +1008,49 @@
 
       .badge-chill {
         color: #6ec6a0;
-        border-color: rgba(110,198,160,0.3);
-        background: rgba(110,198,160,0.05);
+        border-color: rgba(110,198,160,0.35);
+        background: rgba(110,198,160,0.06);
       }
 
       .badge-spicy {
         color: var(--rose);
-        border-color: rgba(232,96,122,0.3);
-        background: rgba(232,96,122,0.05);
+        border-color: rgba(232,96,122,0.35);
+        background: rgba(232,96,122,0.06);
       }
 
       .badge-eng {
         color: #7eb8e8;
-        border-color: rgba(126,184,232,0.3);
-        background: rgba(126,184,232,0.05);
+        border-color: rgba(126,184,232,0.35);
+        background: rgba(126,184,232,0.06);
       }
 
       .btn-start {
         width: 100%;
-        padding: 14px;
+        padding: 12px;
         background: var(--rose);
         border: none;
-        border-radius: 12px;
+        border-radius: 10px;
         color: #fff;
         font-family: 'Inter', sans-serif;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 500;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        box-shadow: 0 6px 30px rgba(232,96,122,0.3);
+        gap: 8px;
+        box-shadow: 0 4px 20px rgba(232,96,122,0.25);
         transition: background 0.22s, transform 0.18s, box-shadow 0.25s;
       }
 
       .btn-start:hover {
         background: #cf4f68;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 40px rgba(232,96,122,0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 30px rgba(232,96,122,0.35);
       }
 
       .btn-start:active {
-        transform: scale(0.97);
+        transform: scale(0.98);
       }
 
       .btn-arrow {
@@ -1080,13 +1058,13 @@
       }
 
       .btn-start:hover .btn-arrow {
-        transform: translateX(5px);
+        transform: translateX(4px);
       }
 
       .panel-footer {
         display: flex;
-        gap: 12px;
-        margin-top: 18px;
+        gap: 10px;
+        margin-top: 14px;
       }
 
       .link-btn {
@@ -1095,13 +1073,13 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 10px 14px;
+        padding: 8px 12px;
         border: 1px solid var(--border2);
-        border-radius: 10px;
+        border-radius: 8px;
         background: transparent;
         color: var(--muted2);
         font-family: 'Inter', sans-serif;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 400;
         cursor: pointer;
         text-decoration: none;
@@ -1332,7 +1310,7 @@
 <div class="layout">
 
   <!-- ==========================================
-       LEFT: HERO / AVATAR
+       TOP: HERO / AVATAR (Full width, no stretch)
        ========================================== -->
   <div class="hero">
     <img id="avatarPreview" class="hero-avatar" src="avatar.png" alt="Avatar"
@@ -1343,6 +1321,7 @@
     </div>
     <input type="file" id="avatarInput" accept="image/*" />
 
+    <!-- Hidden on PC -->
     <div class="hero-content">
       <div class="hero-line"></div>
       <h1 class="logo"><span>SiaGPT</span></h1>
@@ -1353,93 +1332,94 @@
   </div>
 
   <!-- ==========================================
-       RIGHT: FORM PANEL
+       BOTTOM: FORM PANEL (Inside Card)
        ========================================== -->
   <div class="panel">
-    <p class="panel-eyebrow">Get Started</p>
-    <h2 class="panel-heading">Set up your companion.</h2>
+    <div class="panel-card">
+      <p class="panel-eyebrow">Get Started</p>
+      <h2 class="panel-heading">Set up your companion.</h2>
 
-    <div class="field-group">
-      <div class="field">
-        <label>Your Name</label>
-        <input type="text" id="userName" placeholder="e.g. John Doe" maxlength="30" autocomplete="given-name" />
+      <div class="field-group">
+        <div class="field">
+          <label>Your Name</label>
+          <input type="text" id="userName" placeholder="e.g. John Doe" maxlength="30" autocomplete="given-name" />
+        </div>
+        <div class="field">
+          <label>Girlfriend's Name</label>
+          <input type="text" id="gfName" placeholder="e.g. Sia" maxlength="30" autocomplete="off" />
+        </div>
       </div>
-      <div class="field">
-        <label>Girlfriend's Name</label>
-        <input type="text" id="gfName" placeholder="e.g. Sia" maxlength="30" autocomplete="off" />
+
+      <div class="sep">API Access</div>
+
+      <div class="api-box">
+        <div class="api-header">
+          <div class="api-dot"></div>
+          <span class="api-label">OpenRouter API Key</span>
+        </div>
+        <ol class="api-steps">
+          <li>Go to <a href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter AI</a></li>
+          <li>Create a free account</li>
+          <li>Generate an API key</li>
+          <li>Paste it below</li>
+        </ol>
+        <div class="api-note">Free tokens are included — no credit card needed.</div>
+        <div class="field" style="margin-bottom:0">
+          <label>API Key</label>
+          <input type="password" id="apiKey" placeholder="sk-or-v1-..." required autocomplete="off" />
+        </div>
       </div>
-    </div>
 
-    <div class="sep">API Access</div>
+      <div class="sep">Personality</div>
 
-    <div class="api-box">
-      <div class="api-header">
-        <div class="api-dot"></div>
-        <span class="api-label">OpenRouter API Key</span>
+      <div class="personality-box">
+        <div class="personality-header">
+          <div class="personality-dot"></div>
+          <span class="personality-label">Define your girlfriend personality</span>
+        </div>
+        <div class="radio-group" id="personalityGroup">
+
+          <label class="radio-option selected" data-page="chill.html">
+            <input type="radio" name="personality" value="chill.html" checked />
+            <span class="radio-custom"></span>
+            <span class="radio-text">
+              <span class="radio-name">Chill Girl 🌸</span>
+              <span class="radio-desc">Sweet, romantic & clingy. Romanized Bangla mix.</span>
+            </span>
+            <span class="radio-badge badge-chill">Bangla</span>
+          </label>
+
+          <label class="radio-option" data-page="chat.html">
+            <input type="radio" name="personality" value="chat.html" />
+            <span class="radio-custom"></span>
+            <span class="radio-text">
+              <span class="radio-name">Extremely Seductive & Naughty 🔥</span>
+              <span class="radio-desc">Extremely seductive & dirty minded. 18+ only.</span>
+            </span>
+            <span class="radio-badge badge-spicy">Spicy</span>
+          </label>
+
+          <label class="radio-option" data-page="chill_eng.html">
+            <input type="radio" name="personality" value="chill_eng.html" />
+            <span class="radio-custom"></span>
+            <span class="radio-text">
+              <span class="radio-name">Chill Girl — English 💬</span>
+              <span class="radio-desc">Same chaotic energy, 100% in English.</span>
+            </span>
+            <span class="radio-badge badge-eng">English</span>
+          </label>
+
+        </div>
       </div>
-      <ol class="api-steps">
-        <li>Go to <a href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter AI</a></li>
-        <li>Create a free account</li>
-        <li>Generate an API key</li>
-        <li>Paste it below</li>
-      </ol>
-      <div class="api-note">Free tokens are included — no credit card needed.</div>
-      <div class="field" style="margin-bottom:0">
-        <label>API Key</label>
-        <input type="password" id="apiKey" placeholder="sk-or-v1-..." required autocomplete="off" />
+
+      <button class="btn-start" onclick="startChat()">
+        Start Chatting <span class="btn-arrow">→</span>
+      </button>
+
+      <div class="panel-footer">
+        <button class="link-btn" onclick="openBugModal()">🐛 Report Bug</button>
+        <a class="link-btn rose" href="https://mahadiislamalif.netlify.app" target="_blank" rel="noopener">👨‍💻 Developer</a>
       </div>
-    </div>
-
-    <div class="sep">Personality</div>
-
-    <!-- ── Personality Selection ── -->
-    <div class="personality-box">
-      <div class="personality-header">
-        <div class="personality-dot"></div>
-        <span class="personality-label">Define your girlfriend personality</span>
-      </div>
-      <div class="radio-group" id="personalityGroup">
-
-        <label class="radio-option selected" data-page="chill.html">
-          <input type="radio" name="personality" value="chill.html" checked />
-          <span class="radio-custom"></span>
-          <span class="radio-text">
-            <span class="radio-name">Chill Girl 🌸</span>
-            <span class="radio-desc">Sweet, romantic & clingy. Romanized Bangla mix. Dramatic but adorable.</span>
-          </span>
-          <span class="radio-badge badge-chill">Bangla</span>
-        </label>
-
-        <label class="radio-option" data-page="chat.html">
-          <input type="radio" name="personality" value="chat.html" />
-          <span class="radio-custom"></span>
-          <span class="radio-text">
-            <span class="radio-name">Extremely Seductive & Naughty 🔥</span>
-            <span class="radio-desc">Extremely seductive & dirty minded. Do not use it unless you are over 18.</span>
-          </span>
-          <span class="radio-badge badge-spicy">Spicy</span>
-        </label>
-
-        <label class="radio-option" data-page="chill_eng.html">
-          <input type="radio" name="personality" value="chill_eng.html" />
-          <span class="radio-custom"></span>
-          <span class="radio-text">
-            <span class="radio-name">Chill Girl — English 💬</span>
-            <span class="radio-desc">Same chaotic energy, 100% in English. Perfect emotional mess.</span>
-          </span>
-          <span class="radio-badge badge-eng">English</span>
-        </label>
-
-      </div>
-    </div>
-
-    <button class="btn-start" onclick="startChat()">
-      Start Chatting <span class="btn-arrow">→</span>
-    </button>
-
-    <div class="panel-footer">
-      <button class="link-btn" onclick="openBugModal()">🐛 Report Bug</button>
-      <a class="link-btn rose" href="https://mahadiislamalif.netlify.app" target="_blank" rel="noopener">👨‍💻 Developer</a>
     </div>
   </div>
 
