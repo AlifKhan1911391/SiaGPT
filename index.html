@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="avatar.png" />
   
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   
   <style>
     
@@ -626,15 +626,17 @@
 
 
     /* =========================================
-       PC DESIGN (Same Style as Mobile)
-       Top 40%: Avatar + Gradient + SiaGPT Text
-       Bottom 60%: Clean Form Panel
+       PC DESIGN (Clean + Premium)
+       Top 40%: Mobile-style Overlay
+       Bottom 60%: Distinct PC Card Style
        ========================================= */
     @media (min-width: 741px) {
 
       body {
         overflow: hidden;
         background: var(--bg);
+        display: flex;
+        justify-content: center;
       }
 
       .layout {
@@ -642,11 +644,11 @@
         flex-direction: column;
         height: 100vh;
         width: 100%;
-        max-width: 100%;
+        max-width: 1200px;
         margin: 0 auto;
       }
 
-      /* --- TOP SECTION: 40% HEIGHT --- */
+      /* --- TOP: 40% MOBILE STYLE --- */
       .hero {
         position: relative;
         height: 40vh;
@@ -656,7 +658,7 @@
         display: flex;
         align-items: flex-end;
         justify-content: flex-start;
-        padding: 0 0 40px 60px;
+        padding: 0 0 40px 50px;
       }
 
       .hero-avatar {
@@ -664,7 +666,7 @@
         inset: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover; /* No stretching, just crops like mobile */
+        object-fit: cover;
         object-position: center top;
         filter: brightness(0.38) saturate(0.7);
         transition: filter 0.6s;
@@ -723,7 +725,7 @@
 
       .hero-sub {
         margin-top: 16px;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 300;
         color: var(--muted2);
         letter-spacing: 0.04em;
@@ -737,11 +739,6 @@
         color: var(--rose);
         animation: blink 0.85s step-end infinite;
         font-size: 0.9rem;
-      }
-
-      @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
       }
 
       .hero-line {
@@ -796,33 +793,32 @@
         to { opacity:1; }
       }
 
-      /* --- BOTTOM SECTION: 60% HEIGHT --- */
+      /* --- BOTTOM: 60% PC STYLE --- */
       .panel {
         height: 60vh;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        padding: 30px 20px 20px;
+        justify-content: center;
+        padding: 20px;
         overflow-y: auto;
-        background: var(--bg);
+        background: radial-gradient(ellipse at 50% 20%, #161515, #0a0a0a 70%);
       }
 
-      /* Glass Card Container */
       .panel-card {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 28px 32px;
-        max-width: 560px;
+        border-radius: 24px;
+        padding: 36px 40px;
+        max-width: 600px;
         width: 100%;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.7);
       }
 
       .panel-eyebrow {
         font-size: 0.65rem;
-        font-weight: 500;
+        font-weight: 600;
         letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--rose);
@@ -831,18 +827,18 @@
 
       .panel-heading {
         font-family: 'Playfair Display', serif;
-        font-size: 1.6rem;
+        font-size: 1.8rem;
         font-weight: 400;
         font-style: italic;
         color: var(--text);
-        margin-bottom: 20px;
+        margin-bottom: 28px;
       }
 
       .field-group {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
       }
 
       .field {
@@ -861,10 +857,10 @@
 
       input[type="text"],
       input[type="password"] {
-        padding: 10px 14px;
+        padding: 12px 16px;
         background: var(--bg);
         border: 1px solid var(--border2);
-        border-radius: 8px;
+        border-radius: 10px;
         font-family: 'Inter', sans-serif;
         font-size: 0.9rem;
         font-weight: 300;
@@ -875,14 +871,14 @@
 
       input:focus {
         border-color: rgba(232,96,122,0.5);
-        box-shadow: 0 0 0 3px var(--rose-dim);
+        box-shadow: 0 0 0 4px var(--rose-dim);
       }
 
       .sep {
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         font-size: 0.6rem;
         font-weight: 500;
         letter-spacing: 0.16em;
@@ -901,9 +897,9 @@
       .api-box {
         background: var(--surface2);
         border: 1px solid var(--border2);
-        border-radius: 10px;
-        padding: 14px 16px;
-        margin-bottom: 16px;
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin-bottom: 20px;
       }
 
       .api-header {
@@ -975,16 +971,16 @@
       .personality-box {
         background: var(--surface2);
         border: 1px solid var(--border2);
-        border-radius: 10px;
-        padding: 14px 16px;
-        margin-bottom: 20px;
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin-bottom: 24px;
       }
 
       .personality-header {
         display: flex;
         align-items: center;
         gap: 7px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
 
       .personality-dot {
@@ -1006,16 +1002,16 @@
       .radio-group {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
       }
 
       .radio-option {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 12px;
+        gap: 12px;
+        padding: 10px 14px;
         border: 1px solid var(--border2);
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
         transition: border-color 0.22s, background 0.22s;
       }
@@ -1035,10 +1031,10 @@
       }
 
       .radio-custom {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
-        border: 1.5px solid var(--border2);
+        border: 2px solid var(--border2);
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -1052,8 +1048,8 @@
 
       .radio-custom::after {
         content: '';
-        width: 7px;
-        height: 7px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background: var(--rose);
         opacity: 0;
@@ -1071,14 +1067,14 @@
       }
 
       .radio-name {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 500;
         color: var(--text);
         display: block;
       }
 
       .radio-desc {
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         font-weight: 300;
         color: var(--muted2);
         line-height: 1.4;
@@ -1089,7 +1085,7 @@
         font-weight: 600;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        padding: 2px 8px;
+        padding: 2px 10px;
         border-radius: 100px;
         border: 1px solid;
         flex-shrink: 0;
@@ -1115,31 +1111,31 @@
 
       .btn-start {
         width: 100%;
-        padding: 12px;
+        padding: 14px;
         background: var(--rose);
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         color: #fff;
         font-family: 'Inter', sans-serif;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 500;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        box-shadow: 0 4px 20px rgba(232,96,122,0.25);
+        box-shadow: 0 6px 30px rgba(232,96,122,0.3);
         transition: background 0.22s, transform 0.18s, box-shadow 0.25s;
       }
 
       .btn-start:hover {
         background: #cf4f68;
-        transform: translateY(-1px);
-        box-shadow: 0 8px 30px rgba(232,96,122,0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px rgba(232,96,122,0.4);
       }
 
       .btn-start:active {
-        transform: scale(0.98);
+        transform: scale(0.97);
       }
 
       .btn-arrow {
@@ -1147,13 +1143,13 @@
       }
 
       .btn-start:hover .btn-arrow {
-        transform: translateX(4px);
+        transform: translateX(5px);
       }
 
       .panel-footer {
         display: flex;
-        gap: 10px;
-        margin-top: 14px;
+        gap: 12px;
+        margin-top: 18px;
       }
 
       .link-btn {
@@ -1162,13 +1158,13 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 8px 12px;
+        padding: 10px 14px;
         border: 1px solid var(--border2);
-        border-radius: 8px;
+        border-radius: 10px;
         background: transparent;
         color: var(--muted2);
         font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 400;
         cursor: pointer;
         text-decoration: none;
@@ -1399,7 +1395,7 @@
 <div class="layout">
 
   <!-- ==========================================
-       TOP: HERO (40% - Same Style as Mobile)
+       TOP: HERO (Mobile Style on PC)
        ========================================== -->
   <div class="hero">
     <img id="avatarPreview" class="hero-avatar" src="avatar.png" alt="Avatar"
@@ -1420,7 +1416,7 @@
   </div>
 
   <!-- ==========================================
-       BOTTOM: PANEL (60% - Clean Card)
+       BOTTOM: PANEL (PC Distinct Style)
        ========================================== -->
   <div class="panel">
     <div class="panel-card">
