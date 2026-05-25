@@ -24,11 +24,25 @@
 
     html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
 
+    /* ── PC wrapper — centres the card on very wide screens ── */
+    .layout-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100vh;
+      background: var(--bg);
+    }
+
     .layout {
       display: grid;
       grid-template-columns: 1fr 420px;
+      width: 100%;
+      max-width: 1280px;
       height: 100vh;
+      max-height: 100vh;
       min-width: 0;
+      box-shadow: 0 0 0 1px var(--border);
     }
 
     /* ════ LEFT — hero ════ */
@@ -146,12 +160,14 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 48px 40px;
+      padding: 40px 40px;
       overflow-y: auto;
       animation: panelIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
       min-width: 0;
       width: 420px;
       max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
     }
     @keyframes panelIn { from { opacity:0; transform: translateX(30px); } to { opacity:1; transform: translateX(0); } }
 
@@ -390,32 +406,54 @@
       40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)}
     }
 
-    /* New PC responsive breakpoints (preserve mobile below) */
-    @media (min-width: 741px) and (max-width: 1100px) {
+    /* ════ PC BREAKPOINTS ════ */
+
+    /* Large PC: > 1280px — layout is capped at 1280px, sides get background fill */
+    @media (min-width: 1281px) {
+      .layout-wrap { background: #050505; }
+      .layout { border-radius: 0; }
+    }
+
+    /* Medium PC: 1024–1280px */
+    @media (min-width: 1025px) and (max-width: 1280px) {
+      .layout { grid-template-columns: 1fr 400px; }
+      .panel { width: 400px; max-width: 400px; padding: 36px 32px; }
+      .logo { font-size: 4.8rem; }
+    }
+
+    /* Small PC / large tablet: 860–1024px */
+    @media (min-width: 861px) and (max-width: 1024px) {
       .layout { grid-template-columns: 1fr 360px; }
-      .panel { width: 360px; max-width: 360px; padding: 36px 28px; }
+      .panel { width: 360px; max-width: 360px; padding: 32px 26px; }
       .logo { font-size: 4rem; }
       .hero { padding: 0 0 48px 40px; }
     }
 
+    /* Tablet landscape: 741–860px */
     @media (min-width: 741px) and (max-width: 860px) {
-      .layout { grid-template-columns: 1fr 320px; }
-      .panel { width: 320px; max-width: 320px; padding: 28px 20px; }
+      .layout { grid-template-columns: 1fr 310px; }
+      .panel { width: 310px; max-width: 310px; padding: 24px 18px; }
       .logo { font-size: 3.2rem; }
-      .hero { padding: 0 0 40px 32px; }
+      .hero { padding: 0 0 40px 28px; }
+      .panel-heading { font-size: 1.3rem; margin-bottom: 22px; }
+      .field-group { gap: 10px; margin-bottom: 20px; }
+      .api-box, .personality-box { padding: 12px; margin-bottom: 18px; }
     }
 
+    /* Mobile: ≤ 740px — keep original design untouched */
     @media (max-width: 740px) {
       html, body { overflow: auto; }
-      .layout { grid-template-columns: 1fr; grid-template-rows: 44vh auto; height: auto; }
+      .layout-wrap { height: auto; align-items: flex-start; }
+      .layout { grid-template-columns: 1fr; grid-template-rows: 44vh auto; height: auto; max-height: none; box-shadow: none; }
       .hero { padding: 0 0 36px 28px; }
       .logo { font-size: 3.6rem; }
-      .panel { padding: 36px 24px 52px; border-left: none; border-top: 1px solid var(--border); }
+      .panel { width: 100%; max-width: 100%; height: auto; max-height: none; padding: 36px 24px 52px; border-left: none; border-top: 1px solid var(--border); }
     }
   </style>
 </head>
 <body>
 
+<div class="layout-wrap">
 <div class="layout">
 
   <!-- ░░ LEFT — HERO ░░ -->
@@ -526,7 +564,8 @@
     </div>
   </div>
 
-</div>
+</div><!-- /layout -->
+</div><!-- /layout-wrap -->
 
 <!-- ░░ AVATAR CROP MODAL ░░ -->
 <div class="overlay" id="avatarOverlay" onclick="closeAvatarModal(event)">
