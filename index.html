@@ -1659,18 +1659,18 @@
         <div class="api-box">
           <div class="api-header">
             <div class="api-dot"></div>
-            <span class="api-label">OpenRouter API Key</span>
+            <span class="api-label">Gemini API Key</span>
           </div>
           <ol class="api-steps">
-            <li>Go to <a href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter AI</a></li>
-            <li>Create a free account</li>
-            <li>Generate an API key</li>
+            <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></li>
+            <li>Sign in with your Google account</li>
+            <li>Create an API key</li>
             <li>Paste it below</li>
           </ol>
-          <div class="api-note">Free tokens included — no credit card needed.</div>
+          <div class="api-note">Free tier available — limits are set by Google.</div>
           <div class="field" style="margin-bottom:0">
             <label>API Key</label>
-            <input type="password" id="apiKey-pc" placeholder="sk-or-v1-…" required autocomplete="off" />
+            <input type="password" id="apiKey-pc" placeholder="AIza…" required autocomplete="off" />
           </div>
         </div>
       </div>
@@ -1692,16 +1692,6 @@
                 <span class="radio-desc">Sweet, romantic & clingy. Romanized Bangla mix.</span>
               </span>
               <span class="radio-badge badge-chill">Bangla</span>
-            </label>
-
-            <label class="radio-option" data-page="chat.html">
-              <input type="radio" name="personality-pc" value="chat.html" />
-              <span class="radio-custom"></span>
-              <span class="radio-text">
-                <span class="radio-name">Seductive & Naughty 🔥</span>
-                <span class="radio-desc">Bold & flirty personality. 18+ only.</span>
-              </span>
-              <span class="radio-badge badge-spicy">Spicy</span>
             </label>
 
             <label class="radio-option" data-page="chill_eng.html">
@@ -1756,18 +1746,18 @@
       <div class="api-box">
         <div class="api-header">
           <div class="api-dot"></div>
-          <span class="api-label">OpenRouter API Key</span>
+          <span class="api-label">Gemini API Key</span>
         </div>
         <ol class="api-steps">
-          <li>Go to <a href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter AI</a></li>
-          <li>Create a free account</li>
-          <li>Generate an API key</li>
+          <li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></li>
+          <li>Sign in with your Google account</li>
+          <li>Create an API key</li>
           <li>Paste it below</li>
         </ol>
-        <div class="api-note">Free tokens are included — no credit card needed.</div>
+        <div class="api-note">Free tier available — limits are set by Google.</div>
         <div class="field" style="margin-bottom:0">
           <label>API Key</label>
-          <input type="password" id="apiKey" placeholder="sk-or-v1-..." required autocomplete="off" />
+          <input type="password" id="apiKey" placeholder="AIza..." required autocomplete="off" />
         </div>
       </div>
 
@@ -1788,16 +1778,6 @@
               <span class="radio-desc">Sweet, romantic & clingy. Romanized Bangla mix.</span>
             </span>
             <span class="radio-badge badge-chill">Bangla</span>
-          </label>
-
-          <label class="radio-option" data-page="chat.html">
-            <input type="radio" name="personality" value="chat.html" />
-            <span class="radio-custom"></span>
-            <span class="radio-text">
-              <span class="radio-name">Extremely Seductive & Naughty 🔥</span>
-              <span class="radio-desc">Extremely seductive & dirty minded. 18+ only.</span>
-            </span>
-            <span class="radio-badge badge-spicy">Spicy</span>
           </label>
 
           <label class="radio-option" data-page="chill_eng.html">
@@ -1899,9 +1879,11 @@
   // ── Restore saved data ───────────────────────────────────
   const su = localStorage.getItem('siagpt_user');
   const sg = localStorage.getItem('siagpt_gf');
-  const sk = localStorage.getItem('siagpt_apikey');
+  let   sk = localStorage.getItem('siagpt_apikey');
+  if (sk && sk.startsWith('sk-or')) { localStorage.removeItem('siagpt_apikey'); sk = null; } // old OpenRouter key
   const sa = localStorage.getItem('siagpt_avatar');
-  const sp = localStorage.getItem('siagpt_personality') || 'chill.html';
+  let   sp = localStorage.getItem('siagpt_personality') || 'chill.html';
+  if (sp === 'chat.html') sp = 'chill.html'; // that page no longer exists
 
   // Mobile fields
   if (document.getElementById('userName'))  document.getElementById('userName').value  = su || '';
@@ -1949,7 +1931,7 @@
     const avatar   = localStorage.getItem('siagpt_avatar') || document.getElementById('avatarPreview').src;
     const page     = document.querySelector(`input[name="${isMobile ? 'personality' : 'personality-pc'}"]:checked`)?.value || 'chill.html';
 
-    if (!apiKey) {
+    if (!apiKey || apiKey.startsWith('sk-or')) {
       if (apiKeyEl) {
         apiKeyEl.focus();
         apiKeyEl.style.borderColor = 'var(--rose)';
