@@ -122,7 +122,7 @@ const avatar   = localStorage.getItem('siagpt_avatar') || 'avatar.png';
 const apiKey   = localStorage.getItem('siagpt_apikey') || '';
 
 if (!apiKey) {
-  alert('Please enter your OpenRouter API key first.');
+  alert('Please enter your Gemini API key first.');
   window.location.href = 'index.html';
 }
 
@@ -303,7 +303,7 @@ Begin as if already deep in the relationship. No formalities. No instructions. S
 }
 
 // ── API call ─────────────────────────────────────────────
-async function callOpenRouter(messages, greet = false) {
+async function callGemini(messages, greet = false) {
   const systemPrompt = buildSystemPrompt();
   const apiMessages = [];
   if (greet) {
@@ -332,7 +332,7 @@ async function sendMessage() {
   history.push({ role: 'user', content: text });
   showTyping();
   try {
-    const reply = await callOpenRouter(history);
+    const reply = await callGemini(history);
     hideTyping();
     appendMessage('ai', reply);
     history.push({ role: 'assistant', content: reply });
@@ -360,7 +360,7 @@ msgInput.addEventListener('keydown', function (e) {
 async function greet() {
   showTyping();
   try {
-    const reply = await callOpenRouter([], true);
+    const reply = await callGemini([], true);
     hideTyping();
     appendMessage('ai', reply);
     history.push({ role: 'assistant', content: reply });
