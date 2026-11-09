@@ -6,6 +6,17 @@
 
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 
+// Netlify kills a function at 30s. Everything below is budgeted to finish before that,
+// so people get an answer (or a clean error) instead of a platform timeout.
+const TOTAL_BUDGET_MS = 26000;
+const DEFAULT_ATTEMPT_MS = 9000;
+const RETRY_PAUSE_MS = 600;
+
+// Used when the primary model is overloaded (503) or otherwise failing.
+const DEFAULT_FALLBACKS = ["gemini-3.7-flash", "gemini-3.5-flash-lite"];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const BREVITY_RULE = "Reply in 3 to 4 lines only. Be warm but very concise. Never exceed 4 lines.";
 
 const reply = (statusCode, text) => ({
@@ -82,7 +93,11 @@ exports.handler = async function (event) {
   const { messages = [], apiKey = "", systemPrompt = "" } = payload;
 
   const GEMINI_API_KEY = apiKey || process.env.GEMINI_API_KEY;
-  const MODEL = process.env.MODEL || "gemini-3.8-flash";
+  const PRIMARY = process.env.MODEL || "gemini-3.8-flash";
+  const FALLBACKS = process.env.FALLBACK_MODELS !== undefined
+    ? process.env.FALLBACK_MODELS.split(",").map((m) => m.trim()).filter(Boolean)
+    : DEFAULT_FALLBACKS;
+  const ATTEMPT_MS = Number(process.env.ATTEMPT_TIMEOUT_MS) || DEFAULT_ATTEMPT_MS;
 
   if (!GEMINI_API_KEY) {
     return reply(400, "API key not provided 💔 Please go back and enter your Gemini key.");
@@ -95,38 +110,60 @@ exports.handler = async function (event) {
 
   const system_instruction = [String(systemPrompt || "").trim(), BREVITY_RULE].filter(Boolean).join("\n\n");
 
-  try {
-    const response = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
-      body: JSON.stringify({
-        model: MODEL,
-        input: steps,
-        system_instruction,
-        store: false, // history is resent by the browser each turn; nothing is kept on Google's side
-        // Gemini 3.6+ ignores temperature/top_p/top_k, so they are not sent.
-        generation_config: { thinking_level: "low", max_output_tokens: 600 },
-      }),
-    });
-
-    let data = null;
-    try { data = await response.json(); } catch (_) { /* non-JSON error body */ }
-
-    if (!response.ok) {
-      const msg = String((data && data.error && data.error.message) || "").toLowerCase();
-      console.error("Gemini error:", response.status, msg);
-      if (response.status === 401 || response.status === 403 || msg.includes("api key")) {
-        return reply(401, "Invalid API key 💔 Please go back and re-enter it.");
-      }
-      if (response.status === 429) {
-        return reply(429, "Jaan... amar API er limit mone hoy sesh 🥺 Home page e giye notun akta API Key generate kor 🥰");
-      }
-      return reply(502, "Oops! Kono ekta problem hoise 💔 Try again?");
+  // One call to one model. Never throws; reports what happened.
+  async function attempt(model, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify({
+          model,
+          input: steps,
+          system_instruction,
+          store: false, // the browser resends history each turn; nothing is kept on Google's side
+          // Gemini 3.6+ ignores temperature/top_p/top_k, so they are not sent.
+          generation_config: { thinking_level: "low", max_output_tokens: 600 },
+        }),
+        signal: controller.signal,
+      });
+      let data = null;
+      try { data = await response.json(); } catch (_) { /* non-JSON error body */ }
+      const msg = String((data && data.error && data.error.message) || "");
+      return {
+        ok: response.ok, status: response.status, data, msg, model,
+        keyError: !response.ok && (response.status === 401 || response.status === 403 || /api key/i.test(msg)),
+      };
+    } catch (err) {
+      return { ok: false, status: 0, msg: err && err.name === "AbortError" ? "timed out" : String(err && err.message), model };
+    } finally {
+      clearTimeout(timer);
     }
-
-    return reply(200, extractText(data) || "💖");
-  } catch (err) {
-    console.error("Function error:", err && err.message);
-    return reply(500, "Oops! Kono ekta problem hoise 💔 Try again?");
   }
+
+  // Primary model, one quick retry of it (503s are usually brief), then the fallbacks.
+  const plan = [PRIMARY, PRIMARY, ...FALLBACKS.filter((m) => m !== PRIMARY)];
+  const deadline = Date.now() + TOTAL_BUDGET_MS;
+  let last = null;
+
+  for (let i = 0; i < plan.length; i++) {
+    if (i === 1) await sleep(RETRY_PAUSE_MS);
+    const remaining = deadline - Date.now();
+    if (remaining < 2500) break;
+
+    const r = await attempt(plan[i], Math.min(ATTEMPT_MS, remaining - 500));
+    if (r.ok) {
+      if (i > 0) console.log("Answered by", r.model, "after", i, "failed attempt(s)");
+      return reply(200, extractText(r.data) || "💖");
+    }
+    console.error("Gemini attempt failed:", r.model, r.status, r.msg.slice(0, 200));
+    last = r;
+    if (r.keyError) return reply(401, "Invalid API key 💔 Please go back and re-enter it.");
+  }
+
+  if (last && last.status === 429) {
+    return reply(429, "Jaan... amar API er limit mone hoy sesh 🥺 Home page e giye notun akta API Key generate kor 🥰");
+  }
+  return reply(502, "Oops! Kono ekta problem hoise 💔 Try again?");
 };
