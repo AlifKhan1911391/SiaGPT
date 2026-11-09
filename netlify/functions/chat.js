@@ -6,16 +6,17 @@
 
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 
-// Netlify kills a function at 30s. Everything below is budgeted to finish before that,
-// so people get an answer (or a clean error) instead of a platform timeout.
-const TOTAL_BUDGET_MS = 26000;
-const DEFAULT_ATTEMPT_MS = 9000;
-const RETRY_PAUSE_MS = 600;
+// Netlify kills a function at 30s, so everything is budgeted to finish before that.
+// Calls are raced, not queued: a second call starts the moment the first one fails,
+// or after HEDGE_MS if it is merely slow, and the first good answer wins.
+const TOTAL_BUDGET_MS = 22000; // give up after this long overall
+const ATTEMPT_MS = 12000;      // cut off any single call after this long
+const HEDGE_MS = 4000;         // start a second call if there is no answer by then
 
-// Used when the primary model is overloaded (503) or otherwise failing.
-const DEFAULT_FALLBACKS = ["gemini-3.7-flash", "gemini-3.5-flash-lite"];
+// Optional extra models to race (comma-separated FALLBACK_MODELS env var). None by default.
+const DEFAULT_FALLBACKS = [];
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const DEFAULT_MODEL = "gemini-3.5-flash-lite"; // override with the MODEL env var, e.g. gemini-3.5-flash
 
 const BREVITY_RULE = "Reply in 3 to 4 lines only. Be warm but very concise. Never exceed 4 lines.";
 
@@ -93,11 +94,14 @@ exports.handler = async function (event) {
   const { messages = [], apiKey = "", systemPrompt = "" } = payload;
 
   const GEMINI_API_KEY = apiKey || process.env.GEMINI_API_KEY;
-  const PRIMARY = process.env.MODEL || "gemini-3.8-flash";
+  const PRIMARY = process.env.MODEL || DEFAULT_MODEL;
   const FALLBACKS = process.env.FALLBACK_MODELS !== undefined
     ? process.env.FALLBACK_MODELS.split(",").map((m) => m.trim()).filter(Boolean)
     : DEFAULT_FALLBACKS;
-  const ATTEMPT_MS = Number(process.env.ATTEMPT_TIMEOUT_MS) || DEFAULT_ATTEMPT_MS;
+  const num = (v, d) => (Number(v) > 0 ? Number(v) : d);
+  const TOTAL_MS = num(process.env.TOTAL_BUDGET_MS, TOTAL_BUDGET_MS);
+  const PER_CALL_MS = num(process.env.ATTEMPT_TIMEOUT_MS, ATTEMPT_MS);
+  const HEDGE = num(process.env.HEDGE_MS, HEDGE_MS);
 
   if (!GEMINI_API_KEY) {
     return reply(400, "API key not provided 💔 Please go back and enter your Gemini key.");
@@ -111,9 +115,8 @@ exports.handler = async function (event) {
   const system_instruction = [String(systemPrompt || "").trim(), BREVITY_RULE].filter(Boolean).join("\n\n");
 
   // One call to one model. Never throws; reports what happened.
-  async function attempt(model, timeoutMs) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+  async function attempt(model, controller) {
+    const timer = setTimeout(() => controller.abort(), PER_CALL_MS);
     try {
       const response = await fetch(ENDPOINT, {
         method: "POST",
@@ -136,32 +139,63 @@ exports.handler = async function (event) {
         keyError: !response.ok && (response.status === 401 || response.status === 403 || /api key/i.test(msg)),
       };
     } catch (err) {
-      return { ok: false, status: 0, msg: err && err.name === "AbortError" ? "timed out" : String(err && err.message), model };
+      return { ok: false, status: 0, msg: err && err.name === "AbortError" ? "timed out or cancelled" : String(err && err.message), model };
     } finally {
       clearTimeout(timer);
     }
   }
 
-  // Primary model, one quick retry of it (503s are usually brief), then the fallbacks.
+  // Race the calls: the model is tried twice (second call = retry/hedge), then any extra models.
+  // First success wins; a bad key stops everything.
   const plan = [PRIMARY, PRIMARY, ...FALLBACKS.filter((m) => m !== PRIMARY)];
-  const deadline = Date.now() + TOTAL_BUDGET_MS;
+  const started = Date.now();
+  const controllers = [];
+  let winner = null;
+  let keyFailed = false;
   let last = null;
 
-  for (let i = 0; i < plan.length; i++) {
-    if (i === 1) await sleep(RETRY_PAUSE_MS);
-    const remaining = deadline - Date.now();
-    if (remaining < 2500) break;
+  await new Promise((resolve) => {
+    let launched = 0, finished = 0, settled = false, hedgeTimer = null;
 
-    const r = await attempt(plan[i], Math.min(ATTEMPT_MS, remaining - 500));
-    if (r.ok) {
-      if (i > 0) console.log("Answered by", r.model, "after", i, "failed attempt(s)");
-      return reply(200, extractText(r.data) || "💖");
-    }
-    console.error("Gemini attempt failed:", r.model, r.status, r.msg.slice(0, 200));
-    last = r;
-    if (r.keyError) return reply(401, "Invalid API key 💔 Please go back and re-enter it.");
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(hedgeTimer);
+      clearTimeout(deadlineTimer);
+      controllers.forEach((c) => c.abort()); // stop the losers
+      resolve();
+    };
+    const deadlineTimer = setTimeout(settle, TOTAL_MS);
+
+    const launchNext = () => {
+      if (settled || launched >= plan.length) return;
+      const model = plan[launched++];
+      const controller = new AbortController();
+      controllers.push(controller);
+
+      attempt(model, controller).then((r) => {
+        finished++;
+        if (settled) return;
+        if (r.ok) { winner = r; return settle(); }
+        console.error("Gemini attempt failed:", r.model, r.status, r.msg.slice(0, 200));
+        last = r;
+        if (r.keyError) { keyFailed = true; return settle(); }
+        if (launched < plan.length) launchNext();      // failed: start the next call now
+        else if (finished >= plan.length) settle();    // nobody left
+      });
+
+      clearTimeout(hedgeTimer);
+      if (launched < plan.length) hedgeTimer = setTimeout(launchNext, HEDGE); // slow: start a second call
+    };
+
+    launchNext();
+  });
+
+  if (winner) {
+    console.log("Answered by", winner.model, "in", Date.now() - started, "ms");
+    return reply(200, extractText(winner.data) || "💖");
   }
-
+  if (keyFailed) return reply(401, "Invalid API key 💔 Please go back and re-enter it.");
   if (last && last.status === 429) {
     return reply(429, "Jaan... amar API er limit mone hoy sesh 🥺 Home page e giye notun akta API Key generate kor 🥰");
   }
