@@ -87,6 +87,10 @@
     .age-card .yes { background: var(--rose); border: none; color: #fff; margin-bottom: 10px; }
     .age-card .no { background: transparent; border: 1px solid var(--border2); color: var(--muted2); }
   </style>
+  <script>
+    // Locked unless the password was entered on the home page in this browser tab.
+    try { if (sessionStorage.getItem('siagpt_dirty_ok') !== '647d2150c7ad0e0c023304525f56e40da0bf8abbb5c98c3ce29df847d830e46c') { document.documentElement.style.display = 'none'; } } catch (e) { document.documentElement.style.display = 'none'; }
+  </script>
 </head>
 <body>
 <div class="shell">
@@ -124,6 +128,12 @@
 </div>
 
 <script>
+// ── Password lock ────────────────────────────────────────
+const DIRTY_HASH = '647d2150c7ad0e0c023304525f56e40da0bf8abbb5c98c3ce29df847d830e46c';
+let LOCKED = true;
+try { LOCKED = sessionStorage.getItem('siagpt_dirty_ok') !== DIRTY_HASH; } catch (_) {}
+if (LOCKED) { window.location.replace('index.html'); }
+
 // ── Config ───────────────────────────────────────────────
 const CONFIG = {
   typewriter: {
@@ -309,6 +319,7 @@ Remember: You are ${gfName}. You are hot, you are wild, and you are ${userName}'
 
 // ── API call ─────────────────────────────────────────────
 async function callGemini(messages, greet = false) {
+  if (LOCKED) throw new Error('LOCKED');
   const systemPrompt = buildSystemPrompt();
   if (systemPrompt.trim() === PROMPT_PLACEHOLDER) throw new Error('NO_PROMPT'); // you haven't pasted your prompt yet
   const apiMessages = [];
@@ -383,7 +394,9 @@ async function greet() {
 // ── 18+ confirmation (remembered on this device) ─────────
 const AGE_KEY = 'siagpt_18plus';
 const gate = document.getElementById('ageGate');
-if (localStorage.getItem(AGE_KEY) === '1') {
+if (LOCKED) {
+  // sent back to the home page to enter the password
+} else if (localStorage.getItem(AGE_KEY) === '1') {
   greet();
 } else {
   gate.classList.add('visible');
