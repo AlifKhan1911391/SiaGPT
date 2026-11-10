@@ -8,6 +8,7 @@
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet" />
   
   <style>
     
@@ -1594,6 +1595,24 @@
       80%  { transform: translateX(3px); }
     }
 
+
+    /* =========================================
+       DIRTY GIRL PASSWORD GATE
+       ========================================= */
+    .dl-overlay { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(6,6,6,0.94); backdrop-filter: blur(10px); }
+    .dl-overlay.open { display: flex; }
+    .dl-card { width: 100%; max-width: 380px; text-align: center; background: var(--surface); border: 1px solid var(--border2); border-radius: 18px; padding: 30px 24px 24px; }
+    .dl-bn { font-family: 'Noto Sans Bengali', 'Inter', sans-serif; }
+    .dl-title { font-weight: 700; font-size: 1.35rem; line-height: 1.5; color: var(--text); margin-bottom: 10px; }
+    .dl-sub { font-size: .92rem; line-height: 1.7; color: var(--rose); margin-bottom: 22px; }
+    .dl-input { width: 100%; padding: 13px 14px; text-align: center; letter-spacing: .3em; font-family: 'DM Mono', monospace; font-size: 1.05rem; color: var(--text); background: var(--bg); border: 1px solid var(--border2); border-radius: 12px; outline: none; transition: border-color .2s, box-shadow .2s; }
+    .dl-input:focus { border-color: rgba(232,96,122,0.5); box-shadow: 0 0 0 3px var(--rose-dim); }
+    .dl-input.bad { border-color: var(--rose); animation: shake 0.5s ease; }
+    .dl-hint { margin-top: 12px; font-size: .8rem; line-height: 1.6; color: var(--muted2, #888080); }
+    .dl-error { min-height: 1.3em; margin-top: 8px; font-size: .82rem; color: var(--rose); }
+    .dl-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .dl-btn { flex: 1; padding: 12px; border-radius: 12px; font-family: inherit; font-size: .9rem; cursor: pointer; background: var(--rose); border: none; color: #fff; }
+    .dl-btn.ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted2, #888080); }
   </style>
 </head>
 <body>
@@ -1877,6 +1896,21 @@
   </div>
 </div>
 
+<!-- Dirty Girl password gate -->
+<div class="dl-overlay" id="dirtyLock" role="dialog" aria-modal="true" aria-labelledby="dlTitle">
+  <form class="dl-card" id="dlForm" autocomplete="off">
+    <h2 class="dl-title dl-bn" id="dlTitle">উক্ত মডেল সবার জন্য উন্মুক্ত নয়</h2>
+    <p class="dl-sub dl-bn">টাকা দাও আর SiaGPT এর maximum potential use কর</p>
+    <input class="dl-input" id="dlInput" type="password" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password" aria-label="Password" />
+    <p class="dl-hint dl-bn">Maximum feel নিতে গভীর রাতে ব্যবহার করুন</p>
+    <p class="dl-error dl-bn" id="dlError" role="alert"></p>
+    <div class="dl-actions">
+      <button type="button" class="dl-btn ghost" id="dlCancel">Back</button>
+      <button type="submit" class="dl-btn">Unlock</button>
+    </div>
+  </form>
+</div>
+
 <script>
 (function () {
 
@@ -1941,6 +1975,57 @@
   initRadioGroup('personalityGroup',    'personality',    sp);
   initRadioGroup('personalityGroup-pc', 'personality-pc', sp);
 
+  // ── Dirty Girl password gate ─────────────────────────────
+  // Only the SHA-256 of the password is stored here, never the password itself.
+  const DIRTY_HASH = '647d2150c7ad0e0c023304525f56e40da0bf8abbb5c98c3ce29df847d830e46c';
+  const DIRTY_KEY  = 'siagpt_dirty_ok';   // remembered until the browser tab is closed
+
+  const dl = {
+    overlay: document.getElementById('dirtyLock'),
+    form:    document.getElementById('dlForm'),
+    input:   document.getElementById('dlInput'),
+    error:   document.getElementById('dlError'),
+  };
+  let dlOnSuccess = null;
+
+  async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  function dirtyUnlocked() {
+    try { return sessionStorage.getItem(DIRTY_KEY) === DIRTY_HASH; } catch (_) { return false; }
+  }
+  function openDirtyLock(onSuccess) {
+    dlOnSuccess = onSuccess;
+    dl.input.value = ''; dl.input.classList.remove('bad'); dl.error.textContent = '';
+    dl.overlay.classList.add('open');
+    setTimeout(() => dl.input.focus(), 50);
+  }
+  function closeDirtyLock() { dl.overlay.classList.remove('open'); dlOnSuccess = null; }
+
+  dl.form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!(window.crypto && crypto.subtle)) {
+      dl.error.textContent = 'এই পেজটি HTTPS দিয়ে খুলুন';
+      return;
+    }
+    const hash = await sha256Hex(dl.input.value.trim());
+    if (hash === DIRTY_HASH) {
+      try { sessionStorage.setItem(DIRTY_KEY, DIRTY_HASH); } catch (_) {}
+      const next = dlOnSuccess;
+      closeDirtyLock();
+      if (next) next();
+    } else {
+      dl.error.textContent = 'ভুল পাসওয়ার্ড, আবার চেষ্টা কর';
+      dl.input.value = '';
+      dl.input.classList.remove('bad'); void dl.input.offsetWidth; dl.input.classList.add('bad');
+      dl.input.focus();
+    }
+  });
+  document.getElementById('dlCancel').addEventListener('click', closeDirtyLock);
+  dl.overlay.addEventListener('click', (e) => { if (e.target === dl.overlay) closeDirtyLock(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dl.overlay.classList.contains('open')) closeDirtyLock(); });
+
   // ── Start chat ───────────────────────────────────────────
   window.startChat = function (mode) {
     const isMobile = mode === 'mobile';
@@ -1962,16 +2047,22 @@
       return;
     }
 
-    localStorage.setItem('siagpt_user',        userName);
-    localStorage.setItem('siagpt_gf',          gfName);
-    localStorage.setItem('siagpt_avatar',      avatar);
-    localStorage.setItem('siagpt_apikey',      apiKey);
-    localStorage.setItem('siagpt_personality', page);
-    window.location.href = page;
+    const go = () => {
+      localStorage.setItem('siagpt_user',        userName);
+      localStorage.setItem('siagpt_gf',          gfName);
+      localStorage.setItem('siagpt_avatar',      avatar);
+      localStorage.setItem('siagpt_apikey',      apiKey);
+      localStorage.setItem('siagpt_personality', page);
+      window.location.href = page;
+    };
+
+    // Dirty Girl needs the password first
+    if (page === 'dirty_girl.html' && !dirtyUnlocked()) { openDirtyLock(go); return; }
+    go();
   };
 
   // Enter key on any input
-  document.querySelectorAll('input').forEach(el => {
+  document.querySelectorAll('input:not(#dlInput)').forEach(el => {
     el.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const isMobile = window.innerWidth <= 740;
