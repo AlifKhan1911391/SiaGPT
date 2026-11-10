@@ -91,7 +91,8 @@ exports.handler = async function (event) {
   } catch (_) {
     return reply(400, "Oops! Kono ekta problem hoise 💔 Try again?");
   }
-  const { messages = [], apiKey = "", systemPrompt = "" } = payload;
+  const { messages = [], apiKey = "", systemPrompt = "", shortReplies = true } = payload;
+  const short = shortReplies !== false; // the 18+ page sends false: no 3-4 line cap, longer replies
 
   const GEMINI_API_KEY = apiKey || process.env.GEMINI_API_KEY;
   const PRIMARY = process.env.MODEL || DEFAULT_MODEL;
@@ -112,7 +113,7 @@ exports.handler = async function (event) {
     return reply(400, "Oops! Kono ekta problem hoise 💔 Try again?");
   }
 
-  const system_instruction = [String(systemPrompt || "").trim(), BREVITY_RULE].filter(Boolean).join("\n\n");
+  const system_instruction = [String(systemPrompt || "").trim(), short ? BREVITY_RULE : ""].filter(Boolean).join("\n\n");
 
   // One call to one model. Never throws; reports what happened.
   async function attempt(model, controller) {
@@ -127,7 +128,7 @@ exports.handler = async function (event) {
           system_instruction,
           store: false, // the browser resends history each turn; nothing is kept on Google's side
           // Gemini 3.6+ ignores temperature/top_p/top_k, so they are not sent.
-          generation_config: { thinking_level: "low", max_output_tokens: 600 },
+          generation_config: { thinking_level: "low", max_output_tokens: short ? 600 : 1000 },
         }),
         signal: controller.signal,
       });
